@@ -1,15 +1,15 @@
-import { OrbitControls } from "@react-three/drei";
 import { Canvas } from "@react-three/fiber";
+import { OrbitControls } from "@react-three/drei";
+import Sun from "./components/Sun";
 
 function App() {
   return (
     <Canvas>
-    <OrbitControls />
-    <ambientLight intensity={1} />
-      <mesh>
-        <sphereGeometry />
-        <meshStandardMaterial color="orange" />
-      </mesh>
+      <ambientLight intensity={1} />
+
+      <Sun />
+
+      <OrbitControls />
     </Canvas>
   );
 }
