@@ -1,4 +1,4 @@
-function Sun() {
+function Sun({ position }) {
   return (
     <mesh>
       <sphereGeometry />

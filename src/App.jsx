@@ -7,7 +7,7 @@ function App() {
     <Canvas>
       <ambientLight intensity={1} />
 
-      <Sun />
+      <Sun position={[0, 0,0]} />
 
       <OrbitControls />
     </Canvas>
