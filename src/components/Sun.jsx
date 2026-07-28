@@ -1,6 +1,6 @@
 function Sun({ position }) {
   return (
-    <mesh>
+    <mesh position={position}>
       <sphereGeometry />
       <meshStandardMaterial color="orange" />
     </mesh>
