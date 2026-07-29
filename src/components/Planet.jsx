@@ -1,6 +1,10 @@
+import { useRef } from "react";
+const planetRef = useRef();
 function Planet({ position, color, scale }) {
   return (
-    <mesh position={position} scale={scale}>
+    <mesh
+     ref={planetRef}
+     position={position} scale={scale}>
       <sphereGeometry />
       <meshStandardMaterial color={color} />
     </mesh>
