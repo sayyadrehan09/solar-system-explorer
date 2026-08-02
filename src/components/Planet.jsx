@@ -1,13 +1,16 @@
 import { useRef } from "react";
 import { useFrame } from "@react-three/fiber";
-
+import Moon from "./Moon";
+import Ring from "./Ring";
 function Planet({
   position,
   color,
   scale,
   rotationSpeed,
   orbitSpeed,
-}) {
+  hasMoon,
+  hasRing,
+}){
   const planetRef = useRef();
   const orbitRef = useRef();
 
@@ -31,6 +34,8 @@ return (
       <sphereGeometry />
       <meshStandardMaterial color={color} />
     </mesh>
+    {hasRing && <Ring />}
+    {hasMoon && <Moon />}
   </group>
 );
 }

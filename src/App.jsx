@@ -13,13 +13,15 @@ function App() {
 
   {planets.map((planet) => (
   <Planet
-    key={planet.name}
-    position={planet.position}
-    color={planet.color}
-    scale={planet.scale}
-    rotationSpeed={planet.rotationSpeed}
-    orbitSpeed={planet.orbitSpeed}
-  />
+  key={planet.name}
+  position={planet.position}
+  color={planet.color}
+  scale={planet.scale}
+  rotationSpeed={planet.rotationSpeed}
+  orbitSpeed={planet.orbitSpeed}
+  hasMoon={planet.hasMoon}
+  hasRing={planet.hasRing}   
+/>
 ))}
 
 
