@@ -1,8 +1,12 @@
-import { useRef } from "react";
+
 import { useFrame } from "@react-three/fiber";
 import Moon from "./Moon";
 import Ring from "./Ring";
+
+import { useRef, useState } from "react";
+
 function Planet({
+  name,
   position,
   color,
   scale,
@@ -10,10 +14,12 @@ function Planet({
   orbitSpeed,
   hasMoon,
   hasRing,
-}){
+}) {
   const planetRef = useRef();
   const orbitRef = useRef();
 
+
+const [hovered, setHovered] = useState(false);
  
   useFrame(() => {
   if (planetRef.current) {
@@ -26,16 +32,36 @@ function Planet({
 });
 return (
   <group ref={orbitRef}>
-    <mesh
-      ref={planetRef}
-      position={position}
-      scale={scale}
-    >
-      <sphereGeometry />
-      <meshStandardMaterial color={color} />
-    </mesh>
-    {hasRing && <Ring />}
-    {hasMoon && <Moon />}
+
+    <group position={position}>
+
+      <mesh
+        ref={planetRef}
+        scale={scale}
+        onClick={() =>{
+          console.log(name);
+        }}
+      onPointerOver={() => {
+  setHovered(true);
+  document.body.style.cursor = "pointer";
+}}
+
+onPointerOut={() => {
+  setHovered(false);
+  document.body.style.cursor = "default";
+}}
+      >
+        <sphereGeometry />
+        
+<meshStandardMaterial color={hovered ? "white" : color} />
+      </mesh>
+
+      {hasRing && <Ring />}
+
+      {hasMoon && <Moon />}
+
+    </group>
+
   </group>
 );
 }
