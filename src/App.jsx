@@ -12,11 +12,12 @@ function App() {
   <ambientLight intensity={1} />
 
   <Stars
-    radius={100}
-    depth={50}
-    count={5000}
-    factor={4}
-  />
+    radius={300}
+    depth={80}
+    count={1800}
+    factor={5}
+    fade
+/>
 
   <Sun position={[0, 0, 0]} />
 
@@ -31,6 +32,7 @@ function App() {
   orbitSpeed={planet.orbitSpeed}
   hasMoon={planet.hasMoon}
   hasRing={planet.hasRing}
+  texture={planet.texture}
 />
   ))}
 

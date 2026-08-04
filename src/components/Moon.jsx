@@ -21,7 +21,7 @@ function Moon() {
         scale={0.2}
       >
         <sphereGeometry />
-        <meshStandardMaterial color="lightgray" />
+       <meshStandardMaterial color="lightgray" />
       </mesh>
     </group>
   );

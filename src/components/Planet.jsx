@@ -2,13 +2,16 @@
 import { useFrame } from "@react-three/fiber";
 import Moon from "./Moon";
 import Ring from "./Ring";
-
+import { useLoader } from "@react-three/fiber";
+import { TextureLoader } from "three";
+import { Text } from "@react-three/drei";
 import { useRef, useState } from "react";
 
 function Planet({
   name,
   position,
   color,
+  texture,
   scale,
   rotationSpeed,
   orbitSpeed,
@@ -18,7 +21,7 @@ function Planet({
   const planetRef = useRef();
   const orbitRef = useRef();
 
-
+const textureMap = useLoader(TextureLoader, texture);
 const [hovered, setHovered] = useState(false);
  
   useFrame(() => {
@@ -53,14 +56,26 @@ onPointerOut={() => {
       >
         <sphereGeometry />
         
-<meshStandardMaterial color={hovered ? "white" : color} />
+<meshStandardMaterial
+    map={textureMap}
+    color={hovered ? "#dddddd" : "white"}
+/>
       </mesh>
-
+  <Text
+  position={[0, scale + 0.5, 0]}
+  fontSize={0.2}
+  color="white"
+  anchorX="center"
+  anchorY="middle"
+>
+  {name}
+</Text>
       {hasRing && <Ring />}
 
       {hasMoon && <Moon />}
 
     </group>
+  
 
   </group>
 );

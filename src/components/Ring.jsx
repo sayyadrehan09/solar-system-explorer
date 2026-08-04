@@ -1,14 +1,11 @@
 import { DoubleSide } from "three";
 
-function Ring({ position }) {
+function Ring() {
   return (
-    <mesh
-      position={position}
-      rotation={[Math.PI / 2, 0, 0]}
-    >
-      <ringGeometry args={[1.1, 1.6, 64]} />
+    <mesh rotation={[Math.PI / 2, 0, 0]} scale={0.8}>
+      <ringGeometry args={[1.2, 1.8, 64]} />
       <meshStandardMaterial
-        color="khaki"
+        color="#d2b48c"
         side={DoubleSide}
       />
     </mesh>
