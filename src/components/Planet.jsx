@@ -1,83 +1,89 @@
-
-import { useFrame } from "@react-three/fiber";
-import Moon from "./Moon";
-import Ring from "./Ring";
-import { useLoader } from "@react-three/fiber";
+import { useRef, useState } from "react";
+import { useFrame, useLoader } from "@react-three/fiber";
 import { TextureLoader } from "three";
 import { Text } from "@react-three/drei";
-import { useRef, useState } from "react";
+
+import Moon from "./Moon";
+import Ring from "./Ring";
 
 function Planet({
   name,
-  position,
-  color,
   texture,
+  position,
   scale,
   rotationSpeed,
   orbitSpeed,
   hasMoon,
   hasRing,
+  radius,
+  distance,
+  orbitalPeriod,
+  moons,
+  onPlanetClick,
 }) {
   const planetRef = useRef();
   const orbitRef = useRef();
 
-const textureMap = useLoader(TextureLoader, texture);
-const [hovered, setHovered] = useState(false);
- 
+  const textureMap = useLoader(TextureLoader, texture);
+
+  const [hovered, setHovered] = useState(false);
+
   useFrame(() => {
-  if (planetRef.current) {
-  planetRef.current.rotation.y+=rotationSpeed;
-  }
+    if (planetRef.current)
+      planetRef.current.rotation.y += rotationSpeed;
 
-  if (orbitRef.current) {
-    orbitRef.current.rotation.y += orbitSpeed;
-  }
-});
-return (
-  <group ref={orbitRef}>
+    if (orbitRef.current)
+      orbitRef.current.rotation.y += orbitSpeed;
+  });
 
-    <group position={position}>
+  return (
+    <group ref={orbitRef}>
+      <group position={position}>
+        <mesh
+          ref={planetRef}
+          scale={scale}
+          onClick={() =>
+            onPlanetClick({
+              name,
+              radius,
+              distance,
+              orbitalPeriod,
+              moons,
+            })
+          }
+          onPointerOver={() => {
+            setHovered(true);
+            document.body.style.cursor = "pointer";
+          }}
+          onPointerOut={() => {
+            setHovered(false);
+            document.body.style.cursor = "default";
+          }}
+        >
+          <sphereGeometry args={[1, 64, 64]} />
 
-      <mesh
-        ref={planetRef}
-        scale={scale}
-        onClick={() =>{
-          console.log(name);
-        }}
-      onPointerOver={() => {
-  setHovered(true);
-  document.body.style.cursor = "pointer";
-}}
+          <meshStandardMaterial
+            map={textureMap}
+            color={hovered ? "#dddddd" : "white"}
+          />
+        </mesh>
 
-onPointerOut={() => {
-  setHovered(false);
-  document.body.style.cursor = "default";
-}}
-      >
-        <sphereGeometry />
-        
-<meshStandardMaterial
-    map={textureMap}
-    color={hovered ? "#dddddd" : "white"}
-/>
-      </mesh>
-  <Text
-  position={[0, scale + 0.5, 0]}
-  fontSize={0.2}
-  color="white"
-  anchorX="center"
-  anchorY="middle"
->
-  {name}
-</Text>
-      {hasRing && <Ring />}
+        {hasRing && <Ring />}
 
-      {hasMoon && <Moon />}
+        {hasMoon && <Moon />}
 
+        <Text
+          position={[0, scale + 1, 0]}
+          fontSize={0.25}
+          color="white"
+          anchorX="center"
+          anchorY="middle"
+        >
+          {name}
+        </Text>
+      </group>
     </group>
-  
-
-  </group>
-);
+  );
 }
+
 export default Planet;
