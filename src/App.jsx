@@ -5,6 +5,7 @@ import { OrbitControls, Stars } from "@react-three/drei";
 import Sun from "./components/Sun";
 import Planet from "./components/Planet";
 import planets from "./data/planets";
+import Orbit from "./components/Orbit";
 
 function App() {
   const [selectedPlanet, setSelectedPlanet] = useState(null);
@@ -36,15 +37,22 @@ function App() {
           fade
         />
 
-        <Sun position={[0, 0, 0]} />
+       <Sun position={[0, 0, 0]} />
 
-        {planets.map((planet) => (
-          <Planet
-            key={planet.name}
-            {...planet}
-            onPlanetClick={setSelectedPlanet}
-          />
-        ))}
+{planets.map((planet) => (
+  <>
+    <Orbit
+      key={`${planet.name}-orbit`}
+      radius={planet.position[0]}
+    />
+
+    <Planet
+      key={planet.name}
+      {...planet}
+      onPlanetClick={setSelectedPlanet}
+    />
+  </>
+))}
 
         <OrbitControls
           target={[0, 0, 0]}

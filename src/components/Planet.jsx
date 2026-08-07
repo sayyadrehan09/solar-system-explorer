@@ -38,7 +38,7 @@ function Planet({
 
   return (
     <group ref={orbitRef}>
-      <group position={position}>
+      <group position={position}>//two groups so that we  the planet can also revolve 
         <mesh
           ref={planetRef}
           scale={scale}
