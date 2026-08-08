@@ -13,10 +13,10 @@ function App() {
   return (
     <>
       <Canvas
-        camera={{
-          position: [0, 2, 8],
-          fov: 75,
-        }}
+    camera={{
+  position: [0, 2, 6],
+  fov: 75,
+}}
         style={{
           width: "100vw",
           height: "100vh",
