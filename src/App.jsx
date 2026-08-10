@@ -1,5 +1,5 @@
 import { Canvas, useThree } from "@react-three/fiber";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import {
   OrbitControls,
   Stars,
@@ -43,9 +43,26 @@ function CameraReset() {
   );
 }
 
+function CameraFocus({ selectedPlanet, controlsRef }) {
+  const { camera } = useThree();
+
+  if (selectedPlanet?.position) {
+    const [x, y, z] = selectedPlanet.position;
+
+    camera.position.set(x, y + 2, z + 5);
+
+    if (controlsRef.current) {
+      controlsRef.current.target.set(x, y, z);
+      controlsRef.current.update();
+    }
+  }
+
+  return null;
+}
 
 function App() {
   const [selectedPlanet, setSelectedPlanet] = useState(null);
+  const controlsRef = useRef();
 
   return (
     <>
@@ -93,11 +110,16 @@ function App() {
         ))}
 
         <OrbitControls
-          target={[0, 0, 0]}
-          enablePan={false}
-          minDistance={4}
-          maxDistance={20}
-        />
+  ref={controlsRef}
+  target={[0, 0, 0]}
+  enablePan={false}
+  minDistance={4}
+  maxDistance={20}
+/>
+<CameraFocus
+  selectedPlanet={selectedPlanet}
+  controlsRef={controlsRef}
+/>
 
         <CameraReset />
 

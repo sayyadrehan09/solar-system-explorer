@@ -5,7 +5,7 @@ import { Text } from "@react-three/drei";
 
 import Moon from "./Moon";
 import Ring from "./Ring";
-
+import * as THREE from "three";
 function Planet({
   name,
   texture,
@@ -42,15 +42,26 @@ function Planet({
         <mesh
           ref={planetRef}
           scale={scale}
-          onClick={() =>
-            onPlanetClick({
-              name,
-              radius,
-              distance,
-              orbitalPeriod,
-              moons,
-            })
-          }
+          onClick={() => {
+  const worldPosition = planetRef.current.getWorldPosition(
+    new THREE.Vector3()
+  );
+
+  console.log(name, worldPosition);
+
+  onPlanetClick({
+    name,
+    radius,
+    distance,
+    orbitalPeriod,
+    moons,
+    position: [
+      worldPosition.x,
+      worldPosition.y,
+      worldPosition.z,
+    ],
+  });
+}}
           onPointerOver={() => {
             setHovered(true);
             document.body.style.cursor = "pointer";
