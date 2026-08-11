@@ -63,6 +63,7 @@ function CameraFocus({ selectedPlanet, controlsRef }) {
 function App() {
   const [selectedPlanet, setSelectedPlanet] = useState(null);
   const controlsRef = useRef();
+  const [showLabels, setShowLabels] = useState(true);
 
   return (
     <>
@@ -104,6 +105,7 @@ function App() {
             <Planet
               {...planet}
               onPlanetClick={setSelectedPlanet}
+              showLabel={showLabels}
             />
 
           </group>
@@ -124,6 +126,21 @@ function App() {
         <CameraReset />
 
       </Canvas>
+      <button
+  onClick={() => setShowLabels(!showLabels)}
+  style={{
+    position: "absolute",
+    top: 20,
+    left: 20,
+    zIndex: 10,
+    padding: "10px 16px",
+    borderRadius: "8px",
+    border: "none",
+    cursor: "pointer",
+  }}
+>
+  {showLabels ? "Hide Labels" : "Show Labels"}
+</button>
 
 
       {selectedPlanet && (

@@ -20,6 +20,7 @@ function Planet({
   orbitalPeriod,
   moons,
   onPlanetClick,
+   showLabel,
 }) {
   const planetRef = useRef();
   const orbitRef = useRef();
@@ -82,16 +83,17 @@ function Planet({
         {hasRing && <Ring />}
 
         {hasMoon && <Moon />}
-
-        <Text
-          position={[0, scale + 1, 0]}
-          fontSize={0.25}
-          color="white"
-          anchorX="center"
-          anchorY="middle"
-        >
-          {name}
-        </Text>
+{showLabel && (
+  <Text
+    position={[0, scale + 0.5, 0]}
+    fontSize={0.2}
+    color="white"
+    anchorX="center"
+    anchorY="middle"
+  >
+    {name}
+  </Text>
+)}
       </group>
     </group>
   );
