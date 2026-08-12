@@ -21,6 +21,7 @@ function Planet({
   moons,
   onPlanetClick,
    showLabel,
+   paused,
 }) {
   const planetRef = useRef();
   const orbitRef = useRef();
@@ -29,13 +30,17 @@ function Planet({
 
   const [hovered, setHovered] = useState(false);
 
-  useFrame(() => {
-    if (planetRef.current)
+ useFrame(() => {
+  if (!paused) {
+    if (planetRef.current) {
       planetRef.current.rotation.y += rotationSpeed;
+    }
 
-    if (orbitRef.current)
+    if (orbitRef.current) {
       orbitRef.current.rotation.y += orbitSpeed;
-  });
+    }
+  }
+});
 
   return (
     <group ref={orbitRef}>

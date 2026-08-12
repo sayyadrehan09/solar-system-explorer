@@ -64,6 +64,7 @@ function App() {
   const [selectedPlanet, setSelectedPlanet] = useState(null);
   const controlsRef = useRef();
   const [showLabels, setShowLabels] = useState(true);
+  const [paused, setPaused] = useState(false);
 
   return (
     <>
@@ -106,6 +107,7 @@ function App() {
               {...planet}
               onPlanetClick={setSelectedPlanet}
               showLabel={showLabels}
+              paused={paused}
             />
 
           </group>
@@ -142,7 +144,21 @@ function App() {
   {showLabels ? "Hide Labels" : "Show Labels"}
 </button>
 
-
+<button
+  onClick={() => setPaused(!paused)}
+  style={{
+    position: "absolute",
+    bottom: 20,
+    left: 20,
+    zIndex: 10,
+    padding: "10px 16px",
+    borderRadius: "8px",
+    border: "none",
+    cursor: "pointer",
+  }}
+>
+  {paused ? "▶ Resume" : "⏸ Pause"}
+</button>
       {selectedPlanet && (
         <div
           style={{
