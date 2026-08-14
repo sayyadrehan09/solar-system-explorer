@@ -132,7 +132,7 @@ function App() {
   onClick={() => setShowLabels(!showLabels)}
   style={{
     position: "absolute",
-    top: 20,
+    top: 30,
     left: 20,
     zIndex: 10,
     padding: "10px 16px",
