@@ -43,10 +43,13 @@ function CameraReset() {
   );
 }
 
-function CameraFocus({ selectedPlanet, controlsRef }) {
+
+function CameraController({ selectedPlanet, controlsRef }) {
   const { camera } = useThree();
 
-  if (selectedPlanet?.position) {
+  const focusPlanet = () => {
+    if (!selectedPlanet?.position) return;
+
     const [x, y, z] = selectedPlanet.position;
 
     camera.position.set(x, y + 2, z + 5);
@@ -55,16 +58,40 @@ function CameraFocus({ selectedPlanet, controlsRef }) {
       controlsRef.current.target.set(x, y, z);
       controlsRef.current.update();
     }
-  }
+  };
 
-  return null;
+  return (
+    <Html fullscreen>
+      {selectedPlanet && (
+        <button
+          onClick={focusPlanet}
+          style={{
+            position: "absolute",
+            top: "300px",
+            right: "40px",
+            padding: "10px 16px",
+            borderRadius: "8px",
+            border: "none",
+            cursor: "pointer",
+            background: "white",
+            color: "black",
+            fontWeight: "bold",
+          }}
+        >
+          Focus Planet
+        </button>
+      )}
+    </Html>
+  );
 }
+
 
 function App() {
   const [selectedPlanet, setSelectedPlanet] = useState(null);
-  const controlsRef = useRef();
   const [showLabels, setShowLabels] = useState(true);
   const [paused, setPaused] = useState(false);
+
+  const controlsRef = useRef();
 
   return (
     <>
@@ -114,51 +141,63 @@ function App() {
         ))}
 
         <OrbitControls
-  ref={controlsRef}
-  target={[0, 0, 0]}
-  enablePan={false}
-  minDistance={4}
-  maxDistance={20}
-/>
-<CameraFocus
-  selectedPlanet={selectedPlanet}
-  controlsRef={controlsRef}
-/>
+          ref={controlsRef}
+          target={[0, 0, 0]}
+          enablePan={false}
+          minDistance={4}
+          maxDistance={20}
+        />
 
         <CameraReset />
 
-      </Canvas>
-      <button
-  onClick={() => setShowLabels(!showLabels)}
-  style={{
-    position: "absolute",
-    top: 30,
-    left: 20,
-    zIndex: 10,
-    padding: "10px 16px",
-    borderRadius: "8px",
-    border: "none",
-    cursor: "pointer",
-  }}
->
-  {showLabels ? "Hide Labels" : "Show Labels"}
-</button>
+        <CameraController
+          selectedPlanet={selectedPlanet}
+          controlsRef={controlsRef}
+        />
 
-<button
-  onClick={() => setPaused(!paused)}
-  style={{
-    position: "absolute",
-    bottom: 20,
-    left: 20,
-    zIndex: 10,
-    padding: "10px 16px",
-    borderRadius: "8px",
-    border: "none",
-    cursor: "pointer",
-  }}
->
-  {paused ? "▶ Resume" : "⏸ Pause"}
-</button>
+      </Canvas>
+
+
+      {/* LABEL TOGGLE */}
+
+      <button
+        onClick={() => setShowLabels(!showLabels)}
+        style={{
+          position: "absolute",
+          top: 30,
+          left: 20,
+          zIndex: 10,
+          padding: "10px 16px",
+          borderRadius: "8px",
+          border: "none",
+          cursor: "pointer",
+        }}
+      >
+        {showLabels ? "Hide Labels" : "Show Labels"}
+      </button>
+
+
+      {/* PAUSE / RESUME */}
+
+      <button
+        onClick={() => setPaused(!paused)}
+        style={{
+          position: "absolute",
+          bottom: 20,
+          left: 20,
+          zIndex: 10,
+          padding: "10px 16px",
+          borderRadius: "8px",
+          border: "none",
+          cursor: "pointer",
+        }}
+      >
+        {paused ? "▶ Resume" : "⏸ Pause"}
+      </button>
+
+
+      {/* PLANET INFORMATION */}
+
       {selectedPlanet && (
         <div
           style={{
