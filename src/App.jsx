@@ -1,5 +1,7 @@
-import { Canvas, useThree } from "@react-three/fiber";
+import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { useRef, useState } from "react";
+import * as THREE from "three";
+
 import {
   OrbitControls,
   Stars,
@@ -46,18 +48,40 @@ function CameraReset() {
 
 function CameraController({ selectedPlanet, controlsRef }) {
   const { camera } = useThree();
+  const targetPosition = useRef(null);
+
+  useFrame(() => {
+    if (!targetPosition.current) return;
+
+    camera.position.lerp(
+      targetPosition.current,
+      0.05
+    );
+
+    if (controlsRef.current) {
+      controlsRef.current.target.lerp(
+        new THREE.Vector3(
+          targetPosition.current.x,
+          targetPosition.current.y - 2,
+          targetPosition.current.z - 5
+        ),
+        0.05
+      );
+
+      controlsRef.current.update();
+    }
+  });
 
   const focusPlanet = () => {
     if (!selectedPlanet?.position) return;
 
     const [x, y, z] = selectedPlanet.position;
 
-    camera.position.set(x, y + 2, z + 5);
-
-    if (controlsRef.current) {
-      controlsRef.current.target.set(x, y, z);
-      controlsRef.current.update();
-    }
+    targetPosition.current = new THREE.Vector3(
+      x,
+      y + 2,
+      z + 5
+    );
   };
 
   return (
