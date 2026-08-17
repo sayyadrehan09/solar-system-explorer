@@ -66,6 +66,7 @@ function Planet({
       worldPosition.y,
       worldPosition.z,
     ],
+    ref: planetRef.current
   });
 }}
           onPointerOver={() => {

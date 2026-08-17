@@ -46,11 +46,33 @@ function CameraReset() {
 }
 
 
-function CameraController({ selectedPlanet, controlsRef }) {
+function CameraController({
+  selectedPlanet,
+  selectedPlanetRef,
+  controlsRef,
+}) {
   const { camera } = useThree();
   const targetPosition = useRef(null);
 
+
+ 
   useFrame(() => {
+     if (
+  selectedPlanetRef.current &&
+  targetPosition.current
+) {
+  const planetPosition = new THREE.Vector3();
+
+  selectedPlanetRef.current.getWorldPosition(
+    planetPosition
+  );
+
+  targetPosition.current.set(
+    planetPosition.x,
+    planetPosition.y + 2,
+    planetPosition.z + 5
+  );
+}
     if (!targetPosition.current) return;
 
     camera.position.lerp(
@@ -112,6 +134,7 @@ function CameraController({ selectedPlanet, controlsRef }) {
 
 function App() {
   const [selectedPlanet, setSelectedPlanet] = useState(null);
+  const selectedPlanetRef = useRef(null);
   const [showLabels, setShowLabels] = useState(true);
   const [paused, setPaused] = useState(false);
 
@@ -153,13 +176,15 @@ function App() {
             <Orbit
               radius={planet.position[0]}
             />
-
-            <Planet
-              {...planet}
-              onPlanetClick={setSelectedPlanet}
-              showLabel={showLabels}
-              paused={paused}
-            />
+<Planet
+  {...planet}
+  onPlanetClick={(planetData) => {
+    setSelectedPlanet(planetData);
+    selectedPlanetRef.current = planetData.ref;
+  }}
+  showLabel={showLabels}
+  paused={paused}
+/>
 
           </group>
         ))}
@@ -175,9 +200,10 @@ function App() {
         <CameraReset />
 
         <CameraController
-          selectedPlanet={selectedPlanet}
-          controlsRef={controlsRef}
-        />
+  selectedPlanet={selectedPlanet}
+  selectedPlanetRef={selectedPlanetRef}
+  controlsRef={controlsRef}
+/>
 
       </Canvas>
 
