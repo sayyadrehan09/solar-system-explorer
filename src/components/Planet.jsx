@@ -22,6 +22,7 @@ function Planet({
   onPlanetClick,
    showLabel,
    paused,
+    speedMultiplier,
 }) {
   const planetRef = useRef();
   const orbitRef = useRef();
@@ -29,15 +30,16 @@ function Planet({
   const textureMap = useLoader(TextureLoader, texture);
 
   const [hovered, setHovered] = useState(false);
-
- useFrame(() => {
+useFrame(() => {
   if (!paused) {
     if (planetRef.current) {
-      planetRef.current.rotation.y += rotationSpeed;
+      planetRef.current.rotation.y +=
+        rotationSpeed * speedMultiplier;
     }
 
     if (orbitRef.current) {
-      orbitRef.current.rotation.y += orbitSpeed;
+      orbitRef.current.rotation.y +=
+        orbitSpeed * speedMultiplier;
     }
   }
 });

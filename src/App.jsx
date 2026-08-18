@@ -5,7 +5,6 @@ import * as THREE from "three";
 import {
   OrbitControls,
   Stars,
-  Html,
 } from "@react-three/drei";
 
 import Sun from "./components/Sun";
@@ -14,134 +13,189 @@ import planets from "./data/planets";
 import Orbit from "./components/Orbit";
 
 
-function CameraReset() {
-  const { camera } = useThree();
-
-  const resetCamera = () => {
-    camera.position.set(0, 2, 6);
-    camera.lookAt(0, 0, 0);
-  };
-
-  return (
-    <Html fullscreen>
-      <button
-        onClick={resetCamera}
-        style={{
-          position: "absolute",
-          top: "20px",
-          left: "20px",
-          padding: "10px 16px",
-          borderRadius: "8px",
-          border: "none",
-          cursor: "pointer",
-          background: "white",
-          color: "black",
-          fontWeight: "bold",
-        }}
-      >
-        Reset Camera
-      </button>
-    </Html>
-  );
-}
-
-
 function CameraController({
-  selectedPlanet,
   selectedPlanetRef,
   controlsRef,
+  focusRequest,
+  resetRequest,
 }) {
   const { camera } = useThree();
+
   const targetPosition = useRef(null);
+  const targetLookAt = useRef(
+    new THREE.Vector3(0, 0, 0)
+  );
+
+  const followingPlanet = useRef(false);
+
+  const lastFocusRequest = useRef(focusRequest);
+  const lastResetRequest = useRef(resetRequest);
 
 
- 
   useFrame(() => {
-     if (
-  selectedPlanetRef.current &&
-  targetPosition.current
-) {
-  const planetPosition = new THREE.Vector3();
 
-  selectedPlanetRef.current.getWorldPosition(
-    planetPosition
-  );
+    // -----------------------------
+    // FOCUS PLANET REQUEST
+    // -----------------------------
 
-  targetPosition.current.set(
-    planetPosition.x,
-    planetPosition.y + 2,
-    planetPosition.z + 5
-  );
-}
-    if (!targetPosition.current) return;
+    if (focusRequest !== lastFocusRequest.current) {
+      lastFocusRequest.current = focusRequest;
 
-    camera.position.lerp(
-      targetPosition.current,
-      0.05
-    );
+      if (selectedPlanetRef.current) {
+        const planetPosition = new THREE.Vector3();
 
-    if (controlsRef.current) {
-      controlsRef.current.target.lerp(
-        new THREE.Vector3(
-          targetPosition.current.x,
-          targetPosition.current.y - 2,
-          targetPosition.current.z - 5
-        ),
+        selectedPlanetRef.current.getWorldPosition(
+          planetPosition
+        );
+
+        targetPosition.current = new THREE.Vector3(
+          planetPosition.x,
+          planetPosition.y + 2,
+          planetPosition.z + 5
+        );
+
+        targetLookAt.current.copy(planetPosition);
+
+        followingPlanet.current = true;
+      }
+    }
+
+
+    // -----------------------------
+    // RESET CAMERA REQUEST
+    // -----------------------------
+
+    if (resetRequest !== lastResetRequest.current) {
+      lastResetRequest.current = resetRequest;
+
+      targetPosition.current = new THREE.Vector3(
+        0,
+        2,
+        6
+      );
+
+      targetLookAt.current.set(
+        0,
+        0,
+        0
+      );
+
+      followingPlanet.current = false;
+    }
+
+
+    // -----------------------------
+    // FOLLOW SELECTED PLANET
+    // -----------------------------
+
+    if (
+      followingPlanet.current &&
+      selectedPlanetRef.current
+    ) {
+      const planetPosition = new THREE.Vector3();
+
+      selectedPlanetRef.current.getWorldPosition(
+        planetPosition
+      );
+
+      targetPosition.current.set(
+        planetPosition.x,
+        planetPosition.y + 2,
+        planetPosition.z + 5
+      );
+
+      targetLookAt.current.copy(
+        planetPosition
+      );
+    }
+
+
+    // -----------------------------
+    // MOVE CAMERA
+    // -----------------------------
+
+    if (targetPosition.current) {
+
+      camera.position.lerp(
+        targetPosition.current,
         0.05
       );
 
-      controlsRef.current.update();
+      if (controlsRef.current) {
+
+        controlsRef.current.target.lerp(
+          targetLookAt.current,
+          0.05
+        );
+
+        controlsRef.current.update();
+      }
     }
   });
 
-  const focusPlanet = () => {
-    if (!selectedPlanet?.position) return;
-
-    const [x, y, z] = selectedPlanet.position;
-
-    targetPosition.current = new THREE.Vector3(
-      x,
-      y + 2,
-      z + 5
-    );
-  };
-
-  return (
-    <Html fullscreen>
-      {selectedPlanet && (
-        <button
-          onClick={focusPlanet}
-          style={{
-            position: "absolute",
-            top: "300px",
-            right: "40px",
-            padding: "10px 16px",
-            borderRadius: "8px",
-            border: "none",
-            cursor: "pointer",
-            background: "white",
-            color: "black",
-            fontWeight: "bold",
-          }}
-        >
-          Focus Planet
-        </button>
-      )}
-    </Html>
-  );
+  return null;
 }
 
 
 function App() {
-  const [selectedPlanet, setSelectedPlanet] = useState(null);
-  const selectedPlanetRef = useRef(null);
-  const [showLabels, setShowLabels] = useState(true);
-  const [paused, setPaused] = useState(false);
 
-  const controlsRef = useRef();
+  const [selectedPlanet, setSelectedPlanet] =
+    useState(null);
+
+  const [showLabels, setShowLabels] =
+    useState(true);
+
+  const [paused, setPaused] =
+    useState(false);
+
+  const [speedMultiplier, setSpeedMultiplier] =
+    useState(1);
+
+  const [focusRequest, setFocusRequest] =
+    useState(0);
+
+  const [resetRequest, setResetRequest] =
+    useState(0);
+
+  const selectedPlanetRef =
+    useRef(null);
+
+  const controlsRef =
+    useRef();
+
+
+  const handlePlanetClick = (planetData) => {
+
+    setSelectedPlanet(planetData);
+
+    selectedPlanetRef.current =
+      planetData.ref;
+  };
+
+
+  const handleFocusPlanet = () => {
+
+    setFocusRequest(
+      (previous) => previous + 1
+    );
+  };
+
+
+  const handleResetCamera = () => {
+
+    setResetRequest(
+      (previous) => previous + 1
+    );
+  };
+
 
   return (
     <>
+
+      {/* =========================
+          3D SOLAR SYSTEM
+      ========================= */}
+
       <Canvas
         camera={{
           position: [0, 2, 6],
@@ -160,6 +214,7 @@ function App() {
           intensity={80}
         />
 
+
         <Stars
           radius={200}
           depth={80}
@@ -168,26 +223,45 @@ function App() {
           fade
         />
 
-        <Sun position={[0, 0, 0]} />
+
+        <Sun
+          position={[0, 0, 0]}
+        />
+
 
         {planets.map((planet) => (
+
           <group key={planet.name}>
 
             <Orbit
               radius={planet.position[0]}
             />
-<Planet
-  {...planet}
-  onPlanetClick={(planetData) => {
-    setSelectedPlanet(planetData);
-    selectedPlanetRef.current = planetData.ref;
-  }}
-  showLabel={showLabels}
-  paused={paused}
-/>
+
+
+            <Planet
+              {...planet}
+
+              onPlanetClick={
+                handlePlanetClick
+              }
+
+              showLabel={
+                showLabels
+              }
+
+              paused={
+                paused
+              }
+
+              speedMultiplier={
+                speedMultiplier
+              }
+            />
 
           </group>
+
         ))}
+
 
         <OrbitControls
           ref={controlsRef}
@@ -197,86 +271,271 @@ function App() {
           maxDistance={20}
         />
 
-        <CameraReset />
 
         <CameraController
-  selectedPlanet={selectedPlanet}
-  selectedPlanetRef={selectedPlanetRef}
-  controlsRef={controlsRef}
-/>
+          selectedPlanetRef={
+            selectedPlanetRef
+          }
+
+          controlsRef={
+            controlsRef
+          }
+
+          focusRequest={
+            focusRequest
+          }
+
+          resetRequest={
+            resetRequest
+          }
+        />
 
       </Canvas>
 
 
-      {/* LABEL TOGGLE */}
+      {/* =========================
+          RESET CAMERA
+      ========================= */}
 
       <button
-        onClick={() => setShowLabels(!showLabels)}
+        onClick={handleResetCamera}
         style={{
           position: "absolute",
-          top: 30,
+          top: 20,
           left: 20,
           zIndex: 10,
+
           padding: "10px 16px",
+
           borderRadius: "8px",
           border: "none",
+
           cursor: "pointer",
+
+          background: "white",
+          color: "black",
+
+          fontWeight: "bold",
         }}
       >
-        {showLabels ? "Hide Labels" : "Show Labels"}
+        Reset Camera
       </button>
 
 
-      {/* PAUSE / RESUME */}
+      {/* =========================
+          LABEL TOGGLE
+      ========================= */}
 
       <button
-        onClick={() => setPaused(!paused)}
+        onClick={() =>
+          setShowLabels(!showLabels)
+        }
+        style={{
+          position: "absolute",
+          top: 70,
+          left: 20,
+          zIndex: 10,
+
+          padding: "10px 16px",
+
+          borderRadius: "8px",
+          border: "none",
+
+          cursor: "pointer",
+        }}
+      >
+        {showLabels
+          ? "Hide Labels"
+          : "Show Labels"}
+      </button>
+
+
+      {/* =========================
+          PAUSE / RESUME
+      ========================= */}
+
+      <button
+        onClick={() =>
+          setPaused(!paused)
+        }
         style={{
           position: "absolute",
           bottom: 20,
           left: 20,
           zIndex: 10,
+
           padding: "10px 16px",
+
           borderRadius: "8px",
           border: "none",
+
           cursor: "pointer",
         }}
       >
-        {paused ? "▶ Resume" : "⏸ Pause"}
+        {paused
+          ? "▶ Resume"
+          : "⏸ Pause"}
       </button>
 
 
-      {/* PLANET INFORMATION */}
+      {/* =========================
+          SPEED CONTROL
+      ========================= */}
 
-      {selectedPlanet && (
-        <div
+      <div
+        style={{
+          position: "absolute",
+          bottom: 20,
+          left: 130,
+          zIndex: 10,
+
+          display: "flex",
+          alignItems: "center",
+          gap: "8px",
+
+          background: "rgba(20, 20, 20, 0.85)",
+          color: "white",
+
+          padding: "8px 12px",
+
+          borderRadius: "8px",
+        }}
+      >
+
+        <label>
+          Speed
+        </label>
+
+        <select
+          value={speedMultiplier}
+          onChange={(event) =>
+            setSpeedMultiplier(
+              Number(event.target.value)
+            )
+          }
           style={{
-            position: "absolute",
-            top: "20px",
-            right: "20px",
-            width: "260px",
-            background: "rgba(20, 20, 20, 0.9)",
-            color: "white",
-            padding: "20px",
-            borderRadius: "12px",
+            padding: "6px 8px",
+            borderRadius: "6px",
+            border: "none",
+            cursor: "pointer",
           }}
         >
 
-          <h2>{selectedPlanet.name}</h2>
+          <option value={0.25}>
+            0.25x
+          </option>
 
-          <p>Radius: {selectedPlanet.radius}</p>
+          <option value={0.5}>
+            0.5x
+          </option>
 
-          <p>Distance: {selectedPlanet.distance}</p>
+          <option value={1}>
+            1x
+          </option>
 
-          <p>Moons: {selectedPlanet.moons}</p>
+          <option value={2}>
+            2x
+          </option>
 
-          <p>Year: {selectedPlanet.orbitalPeriod}</p>
+          <option value={3}>
+            3x
+          </option>
+
+          <option value={4}>
+            4x
+          </option>
+
+          <option value={5}>
+            5x
+          </option>
+
+        </select>
+
+      </div>
+
+
+      {/* =========================
+          PLANET INFORMATION
+      ========================= */}
+
+      {selectedPlanet && (
+
+        <div
+          style={{
+            position: "absolute",
+
+            top: "20px",
+            right: "20px",
+
+            width: "260px",
+
+            background:
+              "rgba(20, 20, 20, 0.9)",
+
+            color: "white",
+
+            padding: "20px",
+
+            borderRadius: "12px",
+
+            zIndex: 10,
+          }}
+        >
+
+          <h2>
+            {selectedPlanet.name}
+          </h2>
+
+
+          <p>
+            Radius:{" "}
+            {selectedPlanet.radius}
+          </p>
+
+
+          <p>
+            Distance:{" "}
+            {selectedPlanet.distance}
+          </p>
+
+
+          <p>
+            Moons:{" "}
+            {selectedPlanet.moons}
+          </p>
+
+
+          <p>
+            Year:{" "}
+            {selectedPlanet.orbitalPeriod}
+          </p>
+
+
+          <button
+            onClick={handleFocusPlanet}
+            style={{
+              marginTop: "10px",
+
+              padding: "10px 16px",
+
+              borderRadius: "8px",
+              border: "none",
+
+              cursor: "pointer",
+
+              fontWeight: "bold",
+            }}
+          >
+            Focus Planet
+          </button>
 
         </div>
+
       )}
 
     </>
   );
 }
+
 
 export default App;
