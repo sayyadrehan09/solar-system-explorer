@@ -1,7 +1,10 @@
-import { useLoader } from "@react-three/fiber";
+import { useLoader, useFrame } from "@react-three/fiber";
 import { TextureLoader } from "three";
 import { useRef } from "react";
-import { useFrame } from "@react-three/fiber";
+import {
+  AdditiveBlending,
+  BackSide,
+} from "three";
 
 function Sun({ position }) {
   const sunRef = useRef();
@@ -18,18 +21,36 @@ function Sun({ position }) {
   });
 
   return (
-    <mesh
-      ref={sunRef}
-      position={position}
-    >
-      <sphereGeometry args={[1.5, 64, 64]} />
+    <>
+      {/* Main Sun */}
+      <mesh
+        ref={sunRef}
+        position={position}
+      >
+        <sphereGeometry args={[1.5, 64, 64]} />
 
-      <meshStandardMaterial
-        map={sunTexture}
-        emissiveMap={sunTexture}
-        emissiveIntensity={1.5}
-      />
-    </mesh>
+        <meshStandardMaterial
+          map={sunTexture}
+          emissiveMap={sunTexture}
+          emissiveIntensity={1.5}
+        />
+      </mesh>
+
+
+      {/* Sun Corona */}
+      <mesh position={position}>
+        <sphereGeometry args={[1.75, 64, 64]} />
+
+        <meshBasicMaterial
+          color="#ff8a00"
+          transparent
+          opacity={0.25}
+          side={BackSide}
+          blending={AdditiveBlending}
+          depthWrite={false}
+        />
+      </mesh>
+    </>
   );
 }
 
