@@ -30,6 +30,7 @@ function CameraController({
 
   const lastFocusRequest = useRef(focusRequest);
   const lastResetRequest = useRef(resetRequest);
+  
 
 
   useFrame(() => {
@@ -172,6 +173,9 @@ function App() {
       planetData.ref;
   };
 
+ 
+
+const [search, setSearch] = useState("");
 
   const handleFocusPlanet = () => {
 
@@ -187,7 +191,11 @@ function App() {
       (previous) => previous + 1
     );
   };
-
+const filteredPlanets = planets.filter((planet) =>
+  planet.name
+    .toLowerCase()
+    .includes(search.toLowerCase())
+);
 
   return (
     <>
@@ -454,6 +462,34 @@ function App() {
       </div>
 
 
+{/*planet search
+*/}
+<div
+  style={{
+    position: "absolute",
+    top: "20px",
+    left: "160px",
+    zIndex: 10,
+  }}
+>
+  <input
+    type="text"
+    placeholder="Search planet..."
+    value={search}
+    onChange={(event) =>
+      setSearch(event.target.value)
+    }
+    style={{
+      padding: "10px 14px",
+      borderRadius: "8px",
+      border: "none",
+      outline: "none",
+      width: "200px",
+    }}
+  />
+</div>
+
+
       {/* =========================
           PLANET INFORMATION
       ========================= */}
@@ -481,6 +517,24 @@ function App() {
             zIndex: 10,
           }}
         >
+          <button
+  onClick={() => {
+    setSelectedPlanet(null);
+    selectedPlanetRef.current = null;
+  }}
+  style={{
+    position: "absolute",
+    top: "10px",
+    right: "10px",
+    border: "none",
+    background: "transparent",
+    color: "white",
+    fontSize: "20px",
+    cursor: "pointer",
+  }}
+>
+  ✕
+</button>
 
           <h2>
             {selectedPlanet.name}
@@ -524,7 +578,10 @@ function App() {
               cursor: "pointer",
 
               fontWeight: "bold",
+              position: "relative",
+              
             }}
+            
           >
             Focus Planet
           </button>
