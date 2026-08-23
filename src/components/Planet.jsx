@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useRef, useState,useEffect } from "react";
 import { useFrame, useLoader } from "@react-three/fiber";
 import { TextureLoader } from "three";
 import { Text } from "@react-three/drei";
@@ -23,9 +23,16 @@ function Planet({
    showLabel,
    paused,
     speedMultiplier,
+    registerRef
 }) {
   const planetRef = useRef();
   const orbitRef = useRef();
+
+  useEffect(() => {
+  if (planetRef.current && registerRef) {
+    registerRef(planetRef.current);
+  }
+}, [registerRef]);
 
   const textureMap = useLoader(TextureLoader, texture);
 

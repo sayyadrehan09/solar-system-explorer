@@ -158,6 +158,7 @@ function App() {
   const [resetRequest, setResetRequest] =
     useState(0);
 
+    const planetRefs = useRef({});
   const selectedPlanetRef =
     useRef(null);
 
@@ -173,7 +174,7 @@ function App() {
       planetData.ref;
   };
 
- 
+
 
 const [search, setSearch] = useState("");
 
@@ -184,7 +185,7 @@ const [search, setSearch] = useState("");
     );
   };
 
-
+ 
   const handleResetCamera = () => {
 
     setResetRequest(
@@ -248,23 +249,14 @@ const filteredPlanets = planets.filter((planet) =>
 
             <Planet
               {...planet}
-
-              onPlanetClick={
-                handlePlanetClick
-              }
-
-              showLabel={
-                showLabels
-              }
-
-              paused={
-                paused
-              }
-
-              speedMultiplier={
-                speedMultiplier
-              }
-            />
+                onPlanetClick={handlePlanetClick}
+                showLabel={showLabels}
+                paused={paused}
+                speedMultiplier={speedMultiplier}
+                registerRef={(ref) => {
+                planetRefs.current[planet.name] = ref;
+  }}
+/>
 
           </group>
 
@@ -487,6 +479,72 @@ const filteredPlanets = planets.filter((planet) =>
       width: "200px",
     }}
   />
+
+  {search && (
+    <div
+      style={{
+        marginTop: "5px",
+        width: "228px",
+        background: "rgba(20, 20, 20, 0.95)",
+        borderRadius: "8px",
+        overflow: "hidden",
+      }}
+    >
+      {filteredPlanets.length > 0 ? (
+        filteredPlanets.map((planet) => (
+          <button
+            key={planet.name}
+            onClick={() => {
+  const planetRef = planetRefs.current[planet.name];
+
+  if (planetRef) {
+    const worldPosition =
+      planetRef.getWorldPosition(
+        new THREE.Vector3()
+      );
+
+    const planetData = {
+      ...planet,
+      position: [
+        worldPosition.x,
+        worldPosition.y,
+        worldPosition.z,
+      ],
+      ref: planetRef,
+    };
+
+    setSelectedPlanet(planetData);
+    selectedPlanetRef.current = planetRef;
+  }
+
+  setSearch("");
+}}
+            style={{
+              display: "block",
+              width: "100%",
+              padding: "10px 12px",
+              border: "none",
+              background: "transparent",
+              color: "white",
+              textAlign: "left",
+              cursor: "pointer",
+            }}
+          >
+            {planet.name}
+          </button>
+        ))
+      ) : (
+        <div
+          style={{
+            padding: "10px 12px",
+            color: "gray",
+          }}
+        >
+          No planet found
+        </div>
+      )}
+    </div>
+  )}
 </div>
 
 
