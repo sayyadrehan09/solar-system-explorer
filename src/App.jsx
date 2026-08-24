@@ -479,6 +479,20 @@ const filteredPlanets = planets.filter((planet) =>
       width: "200px",
     }}
   />
+  {search && (
+  <button
+    onClick={() => setSearch("")}
+    style={{
+      marginLeft: "5px",
+      padding: "10px",
+      border: "none",
+      borderRadius: "8px",
+      cursor: "pointer",
+    }}
+  >
+    ✕
+  </button>
+)}
 
   {search && (
     <div
