@@ -23,7 +23,8 @@ function Planet({
    showLabel,
    paused,
     speedMultiplier,
-    registerRef
+    registerRef,
+    selected
 }) {
   const planetRef = useRef();
   const orbitRef = useRef();
@@ -90,9 +91,15 @@ useFrame(() => {
           <sphereGeometry args={[1, 64, 64]} />
 
           <meshStandardMaterial
-            map={textureMap}
-            color={hovered ? "#dddddd" : "white"}
-          />
+  map={textureMap}
+  color={
+    selected
+      ? "#ffffaa"
+      : hovered
+      ? "#dddddd"
+      : "white"
+  }
+/>
         </mesh>
 
         {hasRing && <Ring />}

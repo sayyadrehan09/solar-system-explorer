@@ -253,9 +253,11 @@ const filteredPlanets = planets.filter((planet) =>
                 showLabel={showLabels}
                 paused={paused}
                 speedMultiplier={speedMultiplier}
+               
                 registerRef={(ref) => {
                 planetRefs.current[planet.name] = ref;
-  }}
+               
+  }}  selected={selectedPlanet?.name === planet.name}
 />
 
           </group>
