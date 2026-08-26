@@ -564,6 +564,23 @@ const filteredPlanets = planets.filter((planet) =>
 </div>
 
 
+{selectedPlanet && (
+  <div
+    style={{
+      position: "absolute",
+      top: "70px",
+      left: "160px",
+      zIndex: 10,
+      background: "rgba(20, 20, 20, 0.85)",
+      color: "white",
+      padding: "8px 12px",
+      borderRadius: "8px",
+    }}
+  >
+    Selected: {selectedPlanet.name}
+  </div>
+)}
+
       {/* =========================
           PLANET INFORMATION
       ========================= */}
