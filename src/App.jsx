@@ -167,13 +167,17 @@ function App() {
 
 
   const handlePlanetClick = (planetData) => {
+  if (selectedPlanet?.name === planetData.name) {
+    setSelectedPlanet(null);
+    selectedPlanetRef.current = null;
+    return;
+  }
 
-    setSelectedPlanet(planetData);
+  setSelectedPlanet(planetData);
 
-    selectedPlanetRef.current =
-      planetData.ref;
-  };
-
+  selectedPlanetRef.current =
+    planetData.ref;
+};
 
 
 const [search, setSearch] = useState("");

@@ -58,7 +58,7 @@ useFrame(() => {
         <mesh
           ref={planetRef}
           scale={scale}
-          onClick={() => {
+         onClick={() => {
   const worldPosition = planetRef.current.getWorldPosition(
     new THREE.Vector3()
   );
