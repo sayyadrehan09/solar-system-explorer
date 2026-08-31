@@ -264,13 +264,17 @@ function App() {
   // -----------------------------
 
   const handleResetCamera = () => {
+  setResetRequest(
+    (previous) => previous + 1
+  );
 
-    setResetRequest(
-      (previous) =>
-        previous + 1
-    );
-  };
+  setSelectedPlanet(null);
+  selectedPlanetRef.current = null;
 
+  setSelectionRequest(
+    (previous) => previous + 1
+  );
+};
 
   // -----------------------------
   // SEARCH
