@@ -1,5 +1,5 @@
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import * as THREE from "three";
 
 import {
@@ -196,6 +196,11 @@ function App() {
   const [selectionRequest, setSelectionRequest] =
     useState(0);
 
+  // 🔊 SOUND STATE
+  const [soundEnabled, setSoundEnabled] =
+    useState(false);
+
+
   const planetRefs =
     useRef({});
 
@@ -205,8 +210,71 @@ function App() {
   const controlsRef =
     useRef();
 
+  const audioRef =
+    useRef(null);
+
   const [search, setSearch] =
     useState("");
+
+
+  // -----------------------------
+  // CREATE AUDIO
+  // -----------------------------
+
+  useEffect(() => {
+
+    audioRef.current =
+      new Audio("/sounds/space.mp3");
+
+    audioRef.current.loop = true;
+
+    audioRef.current.volume = 0.3;
+
+    return () => {
+
+      audioRef.current?.pause();
+
+    };
+
+  }, []);
+
+
+  // -----------------------------
+  // SOUND TOGGLE
+  // -----------------------------
+
+  const toggleSound = () => {
+
+    if (!audioRef.current) {
+      return;
+    }
+
+    if (soundEnabled) {
+
+      audioRef.current.pause();
+
+      setSoundEnabled(false);
+
+    } else {
+
+      audioRef.current
+        .play()
+        .then(() => {
+
+          setSoundEnabled(true);
+
+        })
+        .catch((error) => {
+
+          console.log(
+            "Audio could not play:",
+            error
+          );
+
+        });
+
+    }
+  };
 
 
   // -----------------------------
@@ -214,9 +282,6 @@ function App() {
   // -----------------------------
 
   const handlePlanetClick = (planetData) => {
-
-    // Clicking the same planet again
-    // deselects it
 
     if (
       selectedPlanet?.name ===
@@ -264,17 +329,23 @@ function App() {
   // -----------------------------
 
   const handleResetCamera = () => {
-  setResetRequest(
-    (previous) => previous + 1
-  );
 
-  setSelectedPlanet(null);
-  selectedPlanetRef.current = null;
+    setResetRequest(
+      (previous) =>
+        previous + 1
+    );
 
-  setSelectionRequest(
-    (previous) => previous + 1
-  );
-};
+    setSelectedPlanet(null);
+
+    selectedPlanetRef.current =
+      null;
+
+    setSelectionRequest(
+      (previous) =>
+        previous + 1
+    );
+  };
+
 
   // -----------------------------
   // SEARCH
@@ -591,6 +662,40 @@ function App() {
         </select>
 
       </div>
+
+
+      {/* =========================
+          SOUND CONTROL
+      ========================= */}
+
+      <button
+        onClick={toggleSound}
+        style={{
+          position: "absolute",
+          bottom: 20,
+          left: 300,
+          zIndex: 10,
+
+          padding: "10px 16px",
+
+          borderRadius: "8px",
+          border: "none",
+
+          cursor: "pointer",
+
+          background: soundEnabled
+            ? "#ffffff"
+            : "#dddddd",
+
+          color: "black",
+
+          fontWeight: "bold",
+        }}
+      >
+        {soundEnabled
+          ? "🔊 Sound ON"
+          : "🔇 Sound OFF"}
+      </button>
 
 
       {/* =========================
