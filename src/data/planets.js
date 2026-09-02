@@ -3,119 +3,102 @@ const planets = [
     name: "Mercury",
     texture: "/textures/mercury.jpg",
     position: [2, 0, 0],
-    scale: 0.22,
+    scale: 0.2,
+
     rotationSpeed: 0.01,
     orbitSpeed: 0.03,
+
     hasMoon: false,
     hasRing: false,
-    radius: "2439 km",
+
+    radius: "2,439.7 km",
     distance: "57.9 Million km",
     orbitalPeriod: "88 Days",
     moons: 0,
+
+    temperature: 167
   },
 
   {
     name: "Venus",
     texture: "/textures/venus.jpg",
-    position: [3.2, 0, 0],
+    position: [3, 0, 0],
     scale: 0.35,
-    rotationSpeed: 0.01,
+
+    rotationSpeed: 0.005,
     orbitSpeed: 0.02,
+
     hasMoon: false,
     hasRing: false,
-    radius: "6052 km",
+
+    radius: "6,051.8 km",
     distance: "108.2 Million km",
     orbitalPeriod: "225 Days",
     moons: 0,
+
+    temperature: 464
   },
 
   {
     name: "Earth",
     texture: "/textures/earth.jpg",
-    position: [4.7, 0, 0],
-    scale: 0.42,
+    position: [4, 0, 0],
+    scale: 0.5,
+
     rotationSpeed: 0.02,
-    orbitSpeed: 0.015,
+    orbitSpeed: 0.01,
+
     hasMoon: true,
     hasRing: false,
-    radius: "6371 km",
+
+    radius: "6,371 km",
     distance: "149.6 Million km",
     orbitalPeriod: "365 Days",
     moons: 1,
+
+    temperature: 15
   },
 
   {
     name: "Mars",
     texture: "/textures/mars.jpg",
-    position: [6.2, 0, 0],
-    scale: 0.3,
-    rotationSpeed: 0.02,
-    orbitSpeed: 0.01,
+    position: [6, 0, 0],
+    scale: 0.4,
+
+    rotationSpeed: 0.015,
+    orbitSpeed: 0.008,
+
     hasMoon: true,
     hasRing: false,
-    radius: "3389 km",
+
+    radius: "3,389.5 km",
     distance: "227.9 Million km",
     orbitalPeriod: "687 Days",
     moons: 2,
+
+    temperature: -65
   },
 
-
-{
-  name: "Jupiter",
-  texture: "/textures/jupiter.jpg",
-  position: [8.5, 0, 0],
-  scale: 1.1,
-  rotationSpeed: 0.025,
-  orbitSpeed: 0.002,
-  hasMoon: true,
-  hasRing: false,
-  radius: "69,911 km",
-  distance: "778.5 Million km",
-  orbitalPeriod: "11.86 Years",
-  moons: 95,
-},
   {
     name: "Saturn",
     texture: "/textures/saturn.jpg",
-    position: [11, 0, 0],
-    scale: 0.7,
-    rotationSpeed: 0.01,
-    orbitSpeed: 0.005,
+    position: [10, 0, 0],
+    scale: 0.8,
+
+    rotationSpeed: 0.02,
+    orbitSpeed: 0.003,
+
     hasMoon: true,
     hasRing: true,
-    radius: "58232 km",
+
+    radius: "58,232 km",
     distance: "1.43 Billion km",
     orbitalPeriod: "29.5 Years",
     moons: 146,
-  },
-  {
-  name: "Uranus",
-  texture: "/textures/uranus.jpg",
-  position: [13.5, 0, 0],
-  scale: 0.65,
-  rotationSpeed: 0.018,
-  orbitSpeed: 0.0015,
-  hasMoon: true,
-  hasRing: false,
-  radius: "25,362 km",
-  distance: "2.87 Billion km",
-  orbitalPeriod: "84 Years",
-  moons: 28,
-},
-{
-  name: "Neptune",
-  texture: "/textures/neptune.jpg",
-  position: [16, 0, 0],
-  scale: 0.62,
-  rotationSpeed: 0.02,
-  orbitSpeed: 0.001,
-  hasMoon: true,
-  hasRing: false,
-  radius: "24,622 km",
-  distance: "4.50 Billion km",
-  orbitalPeriod: "164.8 Years",
-  moons: 16,
-},
+
+    temperature: -140
+  }
 ];
+
 
 export default planets;

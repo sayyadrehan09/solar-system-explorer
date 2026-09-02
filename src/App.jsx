@@ -1016,6 +1016,11 @@ function App() {
             {selectedPlanet.orbitalPeriod}
           </p>
 
+          <p>
+  🌡️        Temperature:{" "}
+            {selectedPlanet.temperature}°C
+          </p>
+
 
           {/* FOCUS */}
 

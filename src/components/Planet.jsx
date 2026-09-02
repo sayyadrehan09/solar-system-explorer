@@ -1,4 +1,4 @@
-import { useRef, useState,useEffect } from "react";
+import { useRef, useState } from "react";
 import { useFrame, useLoader } from "@react-three/fiber";
 import { TextureLoader } from "three";
 import { Text } from "@react-three/drei";
@@ -6,6 +6,7 @@ import { Text } from "@react-three/drei";
 import Moon from "./Moon";
 import Ring from "./Ring";
 import * as THREE from "three";
+
 function Planet({
   name,
   texture,
@@ -19,104 +20,145 @@ function Planet({
   distance,
   orbitalPeriod,
   moons,
+  temperature,
   onPlanetClick,
-   showLabel,
-   paused,
-    speedMultiplier,
-    registerRef,
-    selected
+  showLabel,
+  paused,
+  speedMultiplier,
+  registerRef,
+  selected
 }) {
   const planetRef = useRef();
   const orbitRef = useRef();
 
-  useEffect(() => {
-  if (planetRef.current && registerRef) {
-    registerRef(planetRef.current);
-  }
-}, [registerRef]);
+  const textureMap = useLoader(
+    TextureLoader,
+    texture
+  );
 
-  const textureMap = useLoader(TextureLoader, texture);
+  const [hovered, setHovered] =
+    useState(false);
 
-  const [hovered, setHovered] = useState(false);
-useFrame(() => {
-  if (!paused) {
-    if (planetRef.current) {
-      planetRef.current.rotation.y +=
-        rotationSpeed * speedMultiplier;
+  useFrame(() => {
+    if (!paused) {
+
+      if (planetRef.current) {
+        planetRef.current.rotation.y +=
+          rotationSpeed * speedMultiplier;
+      }
+
+      if (orbitRef.current) {
+        orbitRef.current.rotation.y +=
+          orbitSpeed * speedMultiplier;
+      }
     }
-
-    if (orbitRef.current) {
-      orbitRef.current.rotation.y +=
-        orbitSpeed * speedMultiplier;
-    }
-  }
-});
+  });
 
   return (
     <group ref={orbitRef}>
-      <group position={position}>//two groups so that we  the planet can also revolve 
+
+      <group position={position}>
+
         <mesh
-          ref={planetRef}
+          ref={(ref) => {
+            planetRef.current = ref;
+
+            if (registerRef) {
+              registerRef(ref);
+            }
+          }}
+
           scale={scale}
-         onClick={() => {
-  const worldPosition = planetRef.current.getWorldPosition(
-    new THREE.Vector3()
-  );
 
-  console.log(name, worldPosition);
+          onClick={() => {
 
-  onPlanetClick({
-    name,
-    radius,
-    distance,
-    orbitalPeriod,
-    moons,
-    position: [
-      worldPosition.x,
-      worldPosition.y,
-      worldPosition.z,
-    ],
-    ref: planetRef.current
-  });
-}}
+            const worldPosition =
+              planetRef.current.getWorldPosition(
+                new THREE.Vector3()
+              );
+
+            console.log(
+              name,
+              worldPosition
+            );
+
+            onPlanetClick({
+
+              name,
+
+              radius,
+
+              distance,
+
+              orbitalPeriod,
+
+              moons,
+
+              temperature,
+
+              position: [
+                worldPosition.x,
+                worldPosition.y,
+                worldPosition.z
+              ],
+
+              ref: planetRef.current
+
+            });
+          }}
+
           onPointerOver={() => {
             setHovered(true);
-            document.body.style.cursor = "pointer";
+            document.body.style.cursor =
+              "pointer";
           }}
+
           onPointerOut={() => {
             setHovered(false);
-            document.body.style.cursor = "default";
+            document.body.style.cursor =
+              "default";
           }}
         >
-          <sphereGeometry args={[1, 64, 64]} />
+
+          <sphereGeometry
+            args={[1, 64, 64]}
+          />
 
           <meshStandardMaterial
-  map={textureMap}
-  color={
-    selected
-      ? "#ffffaa"
-      : hovered
-      ? "#dddddd"
-      : "white"
-  }
-/>
+            map={textureMap}
+            color={
+              hovered
+                ? "#dddddd"
+                : "white"
+            }
+          />
+
         </mesh>
+
 
         {hasRing && <Ring />}
 
         {hasMoon && <Moon />}
-{showLabel && (
-  <Text
-    position={[0, scale + 0.5, 0]}
-    fontSize={0.2}
-    color="white"
-    anchorX="center"
-    anchorY="middle"
-  >
-    {name}
-  </Text>
-)}
+
+
+        {showLabel && (
+          <Text
+            position={[
+              0,
+              scale + 0.5,
+              0
+            ]}
+            fontSize={0.2}
+            color="white"
+            anchorX="center"
+            anchorY="middle"
+          >
+            {name}
+          </Text>
+        )}
+
       </group>
+
     </group>
   );
 }
