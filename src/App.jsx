@@ -30,17 +30,19 @@ function CameraController({
 
   const followingPlanet = useRef(false);
 
-  const lastFocusRequest = useRef(focusRequest);
-  const lastResetRequest = useRef(resetRequest);
+  const lastFocusRequest =
+    useRef(focusRequest);
+
+  const lastResetRequest =
+    useRef(resetRequest);
+
   const lastSelectionRequest =
     useRef(selectionRequest);
 
 
   useFrame(() => {
 
-    // -----------------------------
     // DESELECT PLANET
-    // -----------------------------
 
     if (
       selectionRequest !==
@@ -54,9 +56,7 @@ function CameraController({
     }
 
 
-    // -----------------------------
-    // FOCUS PLANET REQUEST
-    // -----------------------------
+    // FOCUS PLANET
 
     if (
       focusRequest !==
@@ -90,9 +90,7 @@ function CameraController({
     }
 
 
-    // -----------------------------
-    // RESET CAMERA REQUEST
-    // -----------------------------
+    // RESET CAMERA
 
     if (
       resetRequest !==
@@ -118,9 +116,7 @@ function CameraController({
     }
 
 
-    // -----------------------------
-    // FOLLOW SELECTED PLANET
-    // -----------------------------
+    // FOLLOW PLANET
 
     if (
       followingPlanet.current &&
@@ -146,9 +142,7 @@ function CameraController({
     }
 
 
-    // -----------------------------
     // MOVE CAMERA
-    // -----------------------------
 
     if (targetPosition.current) {
 
@@ -196,9 +190,15 @@ function App() {
   const [selectionRequest, setSelectionRequest] =
     useState(0);
 
-  // 🔊 SOUND STATE
+  // SOUND
+
   const [soundEnabled, setSoundEnabled] =
     useState(false);
+
+  // ⭐ COMPARE PLANETS
+
+  const [comparePlanets, setComparePlanets] =
+    useState([]);
 
 
   const planetRefs =
@@ -217,9 +217,7 @@ function App() {
     useState("");
 
 
-  // -----------------------------
   // CREATE AUDIO
-  // -----------------------------
 
   useEffect(() => {
 
@@ -231,17 +229,13 @@ function App() {
     audioRef.current.volume = 0.3;
 
     return () => {
-
       audioRef.current?.pause();
-
     };
 
   }, []);
 
 
-  // -----------------------------
   // SOUND TOGGLE
-  // -----------------------------
 
   const toggleSound = () => {
 
@@ -260,26 +254,20 @@ function App() {
       audioRef.current
         .play()
         .then(() => {
-
           setSoundEnabled(true);
-
         })
         .catch((error) => {
-
           console.log(
             "Audio could not play:",
             error
           );
-
         });
 
     }
   };
 
 
-  // -----------------------------
   // PLANET SELECTION
-  // -----------------------------
 
   const handlePlanetClick = (planetData) => {
 
@@ -301,7 +289,6 @@ function App() {
       return;
     }
 
-
     setSelectedPlanet(
       planetData
     );
@@ -311,9 +298,7 @@ function App() {
   };
 
 
-  // -----------------------------
   // FOCUS PLANET
-  // -----------------------------
 
   const handleFocusPlanet = () => {
 
@@ -324,9 +309,7 @@ function App() {
   };
 
 
-  // -----------------------------
   // RESET CAMERA
-  // -----------------------------
 
   const handleResetCamera = () => {
 
@@ -347,9 +330,7 @@ function App() {
   };
 
 
-  // -----------------------------
   // SEARCH
-  // -----------------------------
 
   const filteredPlanets =
     planets.filter((planet) =>
@@ -359,6 +340,63 @@ function App() {
           search.toLowerCase()
         )
     );
+
+
+  // ⭐ ADD PLANET TO COMPARE
+
+  const handleCompare = () => {
+
+    if (!selectedPlanet) {
+      return;
+    }
+
+    setComparePlanets(
+      (previous) => {
+
+        // Already added
+        if (
+          previous.some(
+            (planet) =>
+              planet.name ===
+              selectedPlanet.name
+          )
+        ) {
+          return previous;
+        }
+
+        // If there are already
+        // two planets, replace
+        // the first one
+
+        if (previous.length >= 2) {
+          return [
+            previous[1],
+            selectedPlanet
+          ];
+        }
+
+        return [
+          ...previous,
+          selectedPlanet
+        ];
+      }
+    );
+  };
+
+
+  // ⭐ REMOVE PLANET FROM COMPARISON
+
+  const removeFromCompare = (planetName) => {
+
+    setComparePlanets(
+      (previous) =>
+        previous.filter(
+          (planet) =>
+            planet.name !==
+            planetName
+        )
+    );
+  };
 
 
   return (
@@ -403,9 +441,7 @@ function App() {
         />
 
 
-        {/* =========================
-            PLANETS
-        ========================= */}
+        {/* PLANETS */}
 
         {planets.map((planet) => (
 
@@ -456,9 +492,7 @@ function App() {
         ))}
 
 
-        {/* =========================
-            CAMERA CONTROLS
-        ========================= */}
+        {/* CAMERA */}
 
         <OrbitControls
           ref={controlsRef}
@@ -526,7 +560,7 @@ function App() {
 
 
       {/* =========================
-          LABEL TOGGLE
+          LABELS
       ========================= */}
 
       <button
@@ -556,7 +590,7 @@ function App() {
 
 
       {/* =========================
-          PAUSE / RESUME
+          PAUSE
       ========================= */}
 
       <button
@@ -584,7 +618,7 @@ function App() {
 
 
       {/* =========================
-          SPEED CONTROL
+          SPEED
       ========================= */}
 
       <div
@@ -665,7 +699,7 @@ function App() {
 
 
       {/* =========================
-          SOUND CONTROL
+          SOUND
       ========================= */}
 
       <button
@@ -683,12 +717,6 @@ function App() {
 
           cursor: "pointer",
 
-          background: soundEnabled
-            ? "#ffffff"
-            : "#dddddd",
-
-          color: "black",
-
           fontWeight: "bold",
         }}
       >
@@ -699,7 +727,7 @@ function App() {
 
 
       {/* =========================
-          PLANET SEARCH
+          SEARCH
       ========================= */}
 
       <div
@@ -730,9 +758,8 @@ function App() {
         />
 
 
-        {/* CLEAR SEARCH */}
-
         {search && (
+
           <button
             onClick={() =>
               setSearch("")
@@ -747,10 +774,9 @@ function App() {
           >
             ✕
           </button>
+
         )}
 
-
-        {/* SEARCH RESULTS */}
 
         {search && (
 
@@ -758,8 +784,10 @@ function App() {
             style={{
               marginTop: "5px",
               width: "228px",
+
               background:
                 "rgba(20, 20, 20, 0.95)",
+
               borderRadius: "8px",
               overflow: "hidden",
             }}
@@ -813,18 +841,25 @@ function App() {
 
 
                       setSearch("");
+
                     }}
 
                     style={{
                       display: "block",
                       width: "100%",
+
                       padding:
                         "10px 12px",
+
                       border: "none",
+
                       background:
                         "transparent",
+
                       color: "white",
+
                       textAlign: "left",
+
                       cursor: "pointer",
                     }}
                   >
@@ -856,7 +891,7 @@ function App() {
 
 
       {/* =========================
-          SELECTED PLANET INDICATOR
+          SELECTED PLANET
       ========================= */}
 
       {selectedPlanet && (
@@ -864,8 +899,10 @@ function App() {
         <div
           style={{
             position: "absolute",
+
             top: "70px",
             left: "160px",
+
             zIndex: 10,
 
             background:
@@ -918,9 +955,7 @@ function App() {
           <button
             onClick={() => {
 
-              setSelectedPlanet(
-                null
-              );
+              setSelectedPlanet(null);
 
               selectedPlanetRef.current =
                 null;
@@ -938,12 +973,14 @@ function App() {
               right: "10px",
 
               border: "none",
+
               background:
                 "transparent",
 
               color: "white",
 
               fontSize: "20px",
+
               cursor: "pointer",
             }}
           >
@@ -980,6 +1017,8 @@ function App() {
           </p>
 
 
+          {/* FOCUS */}
+
           <button
             onClick={
               handleFocusPlanet
@@ -990,6 +1029,7 @@ function App() {
               padding: "10px 16px",
 
               borderRadius: "8px",
+
               border: "none",
 
               cursor: "pointer",
@@ -999,6 +1039,266 @@ function App() {
           >
             Focus Planet
           </button>
+
+
+          {/* ⭐ COMPARE */}
+
+          <button
+            onClick={
+              handleCompare
+            }
+            style={{
+              marginTop: "10px",
+
+              marginLeft: "5px",
+
+              padding: "10px 12px",
+
+              borderRadius: "8px",
+
+              border: "none",
+
+              cursor: "pointer",
+
+              fontWeight: "bold",
+            }}
+          >
+            ⭐ Compare
+          </button>
+
+        </div>
+
+      )}
+
+
+      {/* =========================
+          ⭐ COMPARISON PANEL
+      ========================= */}
+
+      {comparePlanets.length > 0 && (
+
+        <div
+          style={{
+            position: "absolute",
+
+            bottom: "20px",
+            right: "20px",
+
+            width: "420px",
+
+            background:
+              "rgba(20, 20, 20, 0.95)",
+
+            color: "white",
+
+            padding: "18px",
+
+            borderRadius: "12px",
+
+            zIndex: 10,
+          }}
+        >
+
+          <h2
+            style={{
+              marginTop: 0,
+            }}
+          >
+            ⭐ Planet Comparison
+          </h2>
+
+
+          {comparePlanets.length === 1 && (
+
+            <p
+              style={{
+                color: "#aaa",
+              }}
+            >
+              Add one more planet to
+              compare.
+            </p>
+
+          )}
+
+
+          {comparePlanets.length === 2 && (
+
+            <div>
+
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns:
+                    "100px 1fr 1fr",
+                  gap: "8px",
+                  alignItems: "center",
+                }}
+              >
+
+                <strong>
+                  Stat
+                </strong>
+
+                <strong>
+                  {
+                    comparePlanets[0]
+                      .name
+                  }
+                </strong>
+
+                <strong>
+                  {
+                    comparePlanets[1]
+                      .name
+                  }
+                </strong>
+
+
+                <span>
+                  Radius
+                </span>
+
+                <span>
+                  {
+                    comparePlanets[0]
+                      .radius
+                  }
+                </span>
+
+                <span>
+                  {
+                    comparePlanets[1]
+                      .radius
+                  }
+                </span>
+
+
+                <span>
+                  Distance
+                </span>
+
+                <span>
+                  {
+                    comparePlanets[0]
+                      .distance
+                  }
+                </span>
+
+                <span>
+                  {
+                    comparePlanets[1]
+                      .distance
+                  }
+                </span>
+
+
+                <span>
+                  Moons
+                </span>
+
+                <span>
+                  {
+                    comparePlanets[0]
+                      .moons
+                  }
+                </span>
+
+                <span>
+                  {
+                    comparePlanets[1]
+                      .moons
+                  }
+                </span>
+
+
+                <span>
+                  Year
+                </span>
+
+                <span>
+                  {
+                    comparePlanets[0]
+                      .orbitalPeriod
+                  }
+                </span>
+
+                <span>
+                  {
+                    comparePlanets[1]
+                      .orbitalPeriod
+                  }
+                </span>
+
+              </div>
+
+
+              <div
+                style={{
+                  marginTop: "15px",
+
+                  display: "flex",
+
+                  gap: "8px",
+                }}
+              >
+
+                <button
+                  onClick={() =>
+                    removeFromCompare(
+                      comparePlanets[0]
+                        .name
+                    )
+                  }
+                  style={{
+                    padding:
+                      "7px 10px",
+
+                    border: "none",
+
+                    borderRadius: "6px",
+
+                    cursor: "pointer",
+                  }}
+                >
+                  Remove{" "}
+                  {
+                    comparePlanets[0]
+                      .name
+                  }
+                </button>
+
+
+                <button
+                  onClick={() =>
+                    removeFromCompare(
+                      comparePlanets[1]
+                        .name
+                    )
+                  }
+                  style={{
+                    padding:
+                      "7px 10px",
+
+                    border: "none",
+
+                    borderRadius: "6px",
+
+                    cursor: "pointer",
+                  }}
+                >
+                  Remove{" "}
+                  {
+                    comparePlanets[1]
+                      .name
+                  }
+                </button>
+
+              </div>
+
+            </div>
+
+          )}
 
         </div>
 
