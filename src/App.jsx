@@ -13,12 +13,15 @@ import planets from "./data/planets";
 import Orbit from "./components/Orbit";
 
 
+// ============================================
+// CAMERA CONTROLLER
+// ============================================
+
 function CameraController({
   selectedPlanetRef,
   controlsRef,
   focusRequest,
   resetRequest,
-  selectionRequest,
 }) {
   const { camera } = useThree();
 
@@ -36,25 +39,8 @@ function CameraController({
   const lastResetRequest =
     useRef(resetRequest);
 
-  const lastSelectionRequest =
-    useRef(selectionRequest);
-
 
   useFrame(() => {
-
-    // DESELECT PLANET
-
-    if (
-      selectionRequest !==
-      lastSelectionRequest.current
-    ) {
-      lastSelectionRequest.current =
-        selectionRequest;
-
-      followingPlanet.current = false;
-      targetPosition.current = null;
-    }
-
 
     // FOCUS PLANET
 
@@ -142,7 +128,7 @@ function CameraController({
     }
 
 
-    // MOVE CAMERA
+    // CAMERA MOVEMENT
 
     if (targetPosition.current) {
 
@@ -167,6 +153,10 @@ function CameraController({
 }
 
 
+// ============================================
+// APP
+// ============================================
+
 function App() {
 
   const [selectedPlanet, setSelectedPlanet] =
@@ -187,18 +177,17 @@ function App() {
   const [resetRequest, setResetRequest] =
     useState(0);
 
-  const [selectionRequest, setSelectionRequest] =
-    useState(0);
-
-  // SOUND
+  const [search, setSearch] =
+    useState("");
 
   const [soundEnabled, setSoundEnabled] =
     useState(false);
 
-  // ⭐ COMPARE PLANETS
-
   const [comparePlanets, setComparePlanets] =
     useState([]);
+
+  const [showControls, setShowControls] =
+    useState(true);
 
 
   const planetRefs =
@@ -213,11 +202,10 @@ function App() {
   const audioRef =
     useRef(null);
 
-  const [search, setSearch] =
-    useState("");
 
-
-  // CREATE AUDIO
+  // ============================================
+  // AUDIO
+  // ============================================
 
   useEffect(() => {
 
@@ -226,16 +214,18 @@ function App() {
 
     audioRef.current.loop = true;
 
-    audioRef.current.volume = 0.3;
+    audioRef.current.volume = 0.25;
 
     return () => {
-      audioRef.current?.pause();
+
+      if (audioRef.current) {
+        audioRef.current.pause();
+      }
+
     };
 
   }, []);
 
-
-  // SOUND TOGGLE
 
   const toggleSound = () => {
 
@@ -267,7 +257,9 @@ function App() {
   };
 
 
-  // PLANET SELECTION
+  // ============================================
+  // PLANET CLICK
+  // ============================================
 
   const handlePlanetClick = (planetData) => {
 
@@ -281,11 +273,6 @@ function App() {
       selectedPlanetRef.current =
         null;
 
-      setSelectionRequest(
-        (previous) =>
-          previous + 1
-      );
-
       return;
     }
 
@@ -298,7 +285,9 @@ function App() {
   };
 
 
-  // FOCUS PLANET
+  // ============================================
+  // FOCUS
+  // ============================================
 
   const handleFocusPlanet = () => {
 
@@ -309,7 +298,9 @@ function App() {
   };
 
 
+  // ============================================
   // RESET CAMERA
+  // ============================================
 
   const handleResetCamera = () => {
 
@@ -322,15 +313,12 @@ function App() {
 
     selectedPlanetRef.current =
       null;
-
-    setSelectionRequest(
-      (previous) =>
-        previous + 1
-    );
   };
 
 
+  // ============================================
   // SEARCH
+  // ============================================
 
   const filteredPlanets =
     planets.filter((planet) =>
@@ -342,7 +330,50 @@ function App() {
     );
 
 
-  // ⭐ ADD PLANET TO COMPARE
+  const handleSearchPlanet = (planet) => {
+
+    const planetRef =
+      planetRefs.current[
+        planet.name
+      ];
+
+    if (!planetRef) {
+      return;
+    }
+
+    const worldPosition =
+      planetRef.getWorldPosition(
+        new THREE.Vector3()
+      );
+
+    const planetData = {
+
+      ...planet,
+
+      position: [
+        worldPosition.x,
+        worldPosition.y,
+        worldPosition.z,
+      ],
+
+      ref: planetRef,
+
+    };
+
+    setSelectedPlanet(
+      planetData
+    );
+
+    selectedPlanetRef.current =
+      planetRef;
+
+    setSearch("");
+  };
+
+
+  // ============================================
+  // COMPARE
+  // ============================================
 
   const handleCompare = () => {
 
@@ -353,7 +384,6 @@ function App() {
     setComparePlanets(
       (previous) => {
 
-        // Already added
         if (
           previous.some(
             (planet) =>
@@ -364,29 +394,27 @@ function App() {
           return previous;
         }
 
-        // If there are already
-        // two planets, replace
-        // the first one
-
         if (previous.length >= 2) {
+
           return [
             previous[1],
-            selectedPlanet
+            selectedPlanet,
           ];
+
         }
 
         return [
           ...previous,
-          selectedPlanet
+          selectedPlanet,
         ];
       }
     );
   };
 
 
-  // ⭐ REMOVE PLANET FROM COMPARISON
-
-  const removeFromCompare = (planetName) => {
+  const removeFromCompare = (
+    planetName
+  ) => {
 
     setComparePlanets(
       (previous) =>
@@ -399,12 +427,40 @@ function App() {
   };
 
 
-  return (
-    <>
+  // ============================================
+  // COMMON BUTTON STYLE
+  // ============================================
 
-      {/* =========================
-          3D SOLAR SYSTEM
-      ========================= */}
+  const buttonStyle = {
+    border: "1px solid rgba(255,255,255,0.12)",
+    background:
+      "rgba(255,255,255,0.08)",
+    color: "white",
+    borderRadius: "10px",
+    padding: "9px 13px",
+    cursor: "pointer",
+    fontSize: "14px",
+    fontWeight: "600",
+    backdropFilter: "blur(10px)",
+    transition: "0.2s",
+  };
+
+
+  return (
+    <div
+      style={{
+        width: "100vw",
+        height: "100vh",
+        background: "black",
+        overflow: "hidden",
+        fontFamily:
+          "Arial, Helvetica, sans-serif",
+      }}
+    >
+
+      {/* ========================================
+          3D WORLD
+      ======================================== */}
 
       <Canvas
         camera={{
@@ -412,8 +468,8 @@ function App() {
           fov: 75,
         }}
         style={{
-          width: "100vw",
-          height: "100vh",
+          width: "100%",
+          height: "100%",
         }}
       >
 
@@ -426,7 +482,6 @@ function App() {
           intensity={80}
         />
 
-
         <Stars
           radius={200}
           depth={80}
@@ -435,13 +490,10 @@ function App() {
           fade
         />
 
-
         <Sun
           position={[0, 0, 0]}
         />
 
-
-        {/* PLANETS */}
 
         {planets.map((planet) => (
 
@@ -454,7 +506,6 @@ function App() {
                 planet.position[0]
               }
             />
-
 
             <Planet
               {...planet}
@@ -476,9 +527,11 @@ function App() {
               }
 
               registerRef={(ref) => {
+
                 planetRefs.current[
                   planet.name
                 ] = ref;
+
               }}
 
               selected={
@@ -491,8 +544,6 @@ function App() {
 
         ))}
 
-
-        {/* CAMERA */}
 
         <OrbitControls
           ref={controlsRef}
@@ -519,277 +570,212 @@ function App() {
           resetRequest={
             resetRequest
           }
-
-          selectionRequest={
-            selectionRequest
-          }
         />
 
       </Canvas>
 
 
-      {/* =========================
-          RESET CAMERA
-      ========================= */}
-
-      <button
-        onClick={
-          handleResetCamera
-        }
-        style={{
-          position: "absolute",
-          top: 20,
-          left: 20,
-          zIndex: 10,
-
-          padding: "10px 16px",
-
-          borderRadius: "8px",
-          border: "none",
-
-          cursor: "pointer",
-
-          background: "white",
-          color: "black",
-
-          fontWeight: "bold",
-        }}
-      >
-        Reset Camera
-      </button>
-
-
-      {/* =========================
-          LABELS
-      ========================= */}
-
-      <button
-        onClick={() =>
-          setShowLabels(
-            !showLabels
-          )
-        }
-        style={{
-          position: "absolute",
-          top: 70,
-          left: 20,
-          zIndex: 10,
-
-          padding: "10px 16px",
-
-          borderRadius: "8px",
-          border: "none",
-
-          cursor: "pointer",
-        }}
-      >
-        {showLabels
-          ? "Hide Labels"
-          : "Show Labels"}
-      </button>
-
-
-      {/* =========================
-          PAUSE
-      ========================= */}
-
-      <button
-        onClick={() =>
-          setPaused(!paused)
-        }
-        style={{
-          position: "absolute",
-          bottom: 20,
-          left: 20,
-          zIndex: 10,
-
-          padding: "10px 16px",
-
-          borderRadius: "8px",
-          border: "none",
-
-          cursor: "pointer",
-        }}
-      >
-        {paused
-          ? "▶ Resume"
-          : "⏸ Pause"}
-      </button>
-
-
-      {/* =========================
-          SPEED
-      ========================= */}
+      {/* ========================================
+          TOP HEADER
+      ======================================== */}
 
       <div
         style={{
           position: "absolute",
-          bottom: 20,
-          left: 130,
-          zIndex: 10,
+          top: "18px",
+          left: "18px",
+          right: "18px",
+
+          height: "54px",
 
           display: "flex",
           alignItems: "center",
-          gap: "8px",
+          justifyContent:
+            "space-between",
+
+          padding:
+            "0 16px",
+
+          borderRadius: "14px",
 
           background:
-            "rgba(20, 20, 20, 0.85)",
+            "rgba(10,10,15,0.72)",
+
+          border:
+            "1px solid rgba(255,255,255,0.1)",
+
+          backdropFilter:
+            "blur(14px)",
 
           color: "white",
 
-          padding: "8px 12px",
+          zIndex: 20,
 
-          borderRadius: "8px",
+          boxSizing:
+            "border-box",
         }}
       >
 
-        <label>
-          Speed
-        </label>
-
-
-        <select
-          value={speedMultiplier}
-          onChange={(event) =>
-            setSpeedMultiplier(
-              Number(
-                event.target.value
-              )
-            )
-          }
+        <div
           style={{
-            padding: "6px 8px",
-            borderRadius: "6px",
-            border: "none",
-            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            gap: "10px",
           }}
         >
 
-          <option value={0.25}>
-            0.25x
-          </option>
+          <span
+            style={{
+              fontSize: "22px",
+            }}
+          >
+            ✦
+          </span>
 
-          <option value={0.5}>
-            0.5x
-          </option>
+          <strong
+            style={{
+              letterSpacing:
+                "1.5px",
+              fontSize: "15px",
+            }}
+          >
+            SOLAR EXPLORER
+          </strong>
 
-          <option value={1}>
-            1x
-          </option>
+        </div>
 
-          <option value={2}>
-            2x
-          </option>
 
-          <option value={3}>
-            3x
-          </option>
-
-          <option value={4}>
-            4x
-          </option>
-
-          <option value={5}>
-            5x
-          </option>
-
-        </select>
+        <div
+          style={{
+            fontSize: "12px",
+            color: "#aaa",
+          }}
+        >
+          {selectedPlanet
+            ? `Exploring ${selectedPlanet.name}`
+            : "Explore the Solar System"}
+        </div>
 
       </div>
 
 
-      {/* =========================
-          SOUND
-      ========================= */}
-
-      <button
-        onClick={toggleSound}
-        style={{
-          position: "absolute",
-          bottom: 20,
-          left: 300,
-          zIndex: 10,
-
-          padding: "10px 16px",
-
-          borderRadius: "8px",
-          border: "none",
-
-          cursor: "pointer",
-
-          fontWeight: "bold",
-        }}
-      >
-        {soundEnabled
-          ? "🔊 Sound ON"
-          : "🔇 Sound OFF"}
-      </button>
-
-
-      {/* =========================
+      {/* ========================================
           SEARCH
-      ========================= */}
+      ======================================== */}
 
       <div
         style={{
           position: "absolute",
-          top: "20px",
-          left: "160px",
-          zIndex: 10,
+
+          top: "88px",
+          left: "20px",
+
+          width: "250px",
+
+          zIndex: 20,
         }}
       >
 
-        <input
-          type="text"
-          placeholder="Search planet..."
-          value={search}
-          onChange={(event) =>
-            setSearch(
-              event.target.value
-            )
-          }
+        <div
           style={{
-            padding: "10px 14px",
-            borderRadius: "8px",
-            border: "none",
-            outline: "none",
-            width: "200px",
+            display: "flex",
+            alignItems: "center",
+
+            background:
+              "rgba(10,10,15,0.82)",
+
+            border:
+              "1px solid rgba(255,255,255,0.12)",
+
+            borderRadius: "12px",
+
+            backdropFilter:
+              "blur(12px)",
+
+            padding:
+              "0 12px",
           }}
-        />
+        >
 
-
-        {search && (
-
-          <button
-            onClick={() =>
-              setSearch("")
-            }
+          <span
             style={{
-              marginLeft: "5px",
-              padding: "10px",
-              border: "none",
-              borderRadius: "8px",
-              cursor: "pointer",
+              color: "#aaa",
+              fontSize: "15px",
             }}
           >
-            ✕
-          </button>
+            🔍
+          </span>
 
-        )}
+          <input
+            type="text"
+            placeholder="Search planet..."
+            value={search}
+            onChange={(event) =>
+              setSearch(
+                event.target.value
+              )
+            }
+            style={{
+              width: "100%",
+
+              padding:
+                "12px 8px",
+
+              background:
+                "transparent",
+
+              border: "none",
+
+              outline: "none",
+
+              color: "white",
+
+              fontSize: "14px",
+            }}
+          />
+
+          {search && (
+
+            <button
+              onClick={() =>
+                setSearch("")
+              }
+              style={{
+                border: "none",
+                background:
+                  "transparent",
+                color: "#aaa",
+                cursor:
+                  "pointer",
+                fontSize: "16px",
+              }}
+            >
+              ×
+            </button>
+
+          )}
+
+        </div>
 
 
         {search && (
 
           <div
             style={{
-              marginTop: "5px",
-              width: "228px",
+              marginTop: "6px",
 
               background:
-                "rgba(20, 20, 20, 0.95)",
+                "rgba(10,10,15,0.94)",
 
-              borderRadius: "8px",
+              border:
+                "1px solid rgba(255,255,255,0.1)",
+
+              borderRadius: "12px",
+
               overflow: "hidden",
+
+              backdropFilter:
+                "blur(14px)",
             }}
           >
 
@@ -800,69 +786,43 @@ function App() {
                 (planet) => (
 
                   <button
-                    key={planet.name}
+                    key={
+                      planet.name
+                    }
 
-                    onClick={() => {
-
-                      const planetRef =
-                        planetRefs.current[
-                          planet.name
-                        ];
-
-
-                      if (planetRef) {
-
-                        const worldPosition =
-                          planetRef.getWorldPosition(
-                            new THREE.Vector3()
-                          );
-
-
-                        const planetData = {
-                          ...planet,
-
-                          position: [
-                            worldPosition.x,
-                            worldPosition.y,
-                            worldPosition.z,
-                          ],
-
-                          ref: planetRef,
-                        };
-
-
-                        setSelectedPlanet(
-                          planetData
-                        );
-
-                        selectedPlanetRef.current =
-                          planetRef;
-                      }
-
-
-                      setSearch("");
-
-                    }}
+                    onClick={() =>
+                      handleSearchPlanet(
+                        planet
+                      )
+                    }
 
                     style={{
-                      display: "block",
                       width: "100%",
 
                       padding:
-                        "10px 12px",
-
-                      border: "none",
+                        "12px 14px",
 
                       background:
                         "transparent",
 
+                      border: "none",
+
+                      borderBottom:
+                        "1px solid rgba(255,255,255,0.06)",
+
                       color: "white",
 
-                      textAlign: "left",
+                      textAlign:
+                        "left",
 
-                      cursor: "pointer",
+                      cursor:
+                        "pointer",
+
+                      fontSize:
+                        "14px",
                     }}
                   >
+                    🪐{" "}
                     {planet.name}
                   </button>
 
@@ -874,8 +834,11 @@ function App() {
               <div
                 style={{
                   padding:
-                    "10px 12px",
-                  color: "gray",
+                    "13px",
+                  color:
+                    "#777",
+                  fontSize:
+                    "13px",
                 }}
               >
                 No planet found
@@ -890,9 +853,39 @@ function App() {
       </div>
 
 
-      {/* =========================
-          SELECTED PLANET
-      ========================= */}
+      {/* ========================================
+          RESET CAMERA
+      ======================================== */}
+
+      <button
+        onClick={
+          handleResetCamera
+        }
+
+        style={{
+          position: "absolute",
+
+          top: "88px",
+          right: "20px",
+
+          zIndex: 20,
+
+          ...buttonStyle,
+
+          background:
+            "rgba(10,10,15,0.82)",
+
+          backdropFilter:
+            "blur(12px)",
+        }}
+      >
+        ⟳ Reset Camera
+      </button>
+
+
+      {/* ========================================
+          PLANET INFO CARD
+      ======================================== */}
 
       {selectedPlanet && (
 
@@ -900,53 +893,33 @@ function App() {
           style={{
             position: "absolute",
 
-            top: "70px",
-            left: "160px",
-
-            zIndex: 10,
-
-            background:
-              "rgba(20, 20, 20, 0.85)",
-
-            color: "white",
-
-            padding: "8px 12px",
-
-            borderRadius: "8px",
-          }}
-        >
-          Selected:{" "}
-          {selectedPlanet.name}
-        </div>
-
-      )}
-
-
-      {/* =========================
-          PLANET INFORMATION
-      ========================= */}
-
-      {selectedPlanet && (
-
-        <div
-          style={{
-            position: "absolute",
-
-            top: "20px",
+            top: "155px",
             right: "20px",
 
-            width: "260px",
+            width: "300px",
+
+            padding: "22px",
+
+            borderRadius: "18px",
 
             background:
-              "rgba(20, 20, 20, 0.9)",
+              "rgba(12,12,18,0.88)",
+
+            border:
+              "1px solid rgba(255,255,255,0.12)",
+
+            backdropFilter:
+              "blur(18px)",
 
             color: "white",
 
-            padding: "20px",
+            zIndex: 20,
 
-            borderRadius: "12px",
+            boxShadow:
+              "0 20px 60px rgba(0,0,0,0.45)",
 
-            zIndex: 10,
+            boxSizing:
+              "border-box",
           }}
         >
 
@@ -955,120 +928,611 @@ function App() {
           <button
             onClick={() => {
 
-              setSelectedPlanet(null);
+              setSelectedPlanet(
+                null
+              );
 
               selectedPlanetRef.current =
                 null;
-
-              setSelectionRequest(
-                (previous) =>
-                  previous + 1
-              );
 
             }}
 
             style={{
               position: "absolute",
-              top: "10px",
-              right: "10px",
+
+              top: "12px",
+              right: "12px",
+
+              width: "32px",
+              height: "32px",
+
+              borderRadius:
+                "50%",
 
               border: "none",
 
               background:
-                "transparent",
+                "rgba(255,255,255,0.08)",
 
               color: "white",
 
               fontSize: "20px",
 
-              cursor: "pointer",
+              cursor:
+                "pointer",
             }}
           >
-            ✕
+            ×
           </button>
 
 
-          <h2>
+          {/* PLANET NAME */}
+
+          <div
+            style={{
+              color: "#8c8cff",
+
+              fontSize: "11px",
+
+              letterSpacing:
+                "2px",
+
+              textTransform:
+                "uppercase",
+
+              marginBottom:
+                "6px",
+            }}
+          >
+            Planet
+          </div>
+
+
+          <h2
+            style={{
+              margin:
+                "0 0 20px 0",
+
+              fontSize:
+                "28px",
+
+              letterSpacing:
+                "0.5px",
+            }}
+          >
             {selectedPlanet.name}
           </h2>
 
 
-          <p>
-            Radius:{" "}
-            {selectedPlanet.radius}
-          </p>
+          {/* TEMPERATURE */}
 
-
-          <p>
-            Distance:{" "}
-            {selectedPlanet.distance}
-          </p>
-
-
-          <p>
-            Moons:{" "}
-            {selectedPlanet.moons}
-          </p>
-
-
-          <p>
-            Year:{" "}
-            {selectedPlanet.orbitalPeriod}
-          </p>
-
-          <p>
-  🌡️        Temperature:{" "}
-            {selectedPlanet.temperature}°C
-          </p>
-
-
-          {/* FOCUS */}
-
-          <button
-            onClick={
-              handleFocusPlanet
-            }
+          <div
             style={{
-              marginTop: "10px",
+              padding:
+                "14px",
 
-              padding: "10px 16px",
+              marginBottom:
+                "16px",
 
-              borderRadius: "8px",
+              borderRadius:
+                "12px",
 
-              border: "none",
+              background:
+                "rgba(255,255,255,0.06)",
 
-              cursor: "pointer",
-
-              fontWeight: "bold",
+              border:
+                "1px solid rgba(255,255,255,0.08)",
             }}
           >
-            Focus Planet
+
+            <div
+              style={{
+                fontSize:
+                  "11px",
+
+                color:
+                  "#888",
+
+                marginBottom:
+                  "5px",
+
+                textTransform:
+                  "uppercase",
+
+                letterSpacing:
+                  "1px",
+              }}
+            >
+              Average Temperature
+            </div>
+
+            <div
+              style={{
+                fontSize:
+                  "24px",
+
+                fontWeight:
+                  "bold",
+              }}
+            >
+              🌡️{" "}
+              {selectedPlanet.temperature}
+              °C
+            </div>
+
+          </div>
+
+
+          {/* STATS */}
+
+          <div
+            style={{
+              display: "grid",
+
+              gridTemplateColumns:
+                "1fr 1fr",
+
+              gap: "10px",
+            }}
+          >
+
+            <div
+              style={{
+                padding:
+                  "11px",
+
+                borderRadius:
+                  "10px",
+
+                background:
+                  "rgba(255,255,255,0.045)",
+              }}
+            >
+
+              <div
+                style={{
+                  fontSize:
+                    "10px",
+                  color:
+                    "#777",
+                  marginBottom:
+                    "4px",
+                }}
+              >
+                RADIUS
+              </div>
+
+              <div
+                style={{
+                  fontSize:
+                    "13px",
+                  fontWeight:
+                    "600",
+                }}
+              >
+                {
+                  selectedPlanet.radius
+                }
+              </div>
+
+            </div>
+
+
+            <div
+              style={{
+                padding:
+                  "11px",
+
+                borderRadius:
+                  "10px",
+
+                background:
+                  "rgba(255,255,255,0.045)",
+              }}
+            >
+
+              <div
+                style={{
+                  fontSize:
+                    "10px",
+                  color:
+                    "#777",
+                  marginBottom:
+                    "4px",
+                }}
+              >
+                MOONS
+              </div>
+
+              <div
+                style={{
+                  fontSize:
+                    "13px",
+                  fontWeight:
+                    "600",
+                }}
+              >
+                {
+                  selectedPlanet.moons
+                }
+              </div>
+
+            </div>
+
+
+            <div
+              style={{
+                padding:
+                  "11px",
+
+                borderRadius:
+                  "10px",
+
+                background:
+                  "rgba(255,255,255,0.045)",
+              }}
+            >
+
+              <div
+                style={{
+                  fontSize:
+                    "10px",
+                  color:
+                    "#777",
+                  marginBottom:
+                    "4px",
+                }}
+              >
+                DISTANCE
+              </div>
+
+              <div
+                style={{
+                  fontSize:
+                    "13px",
+                  fontWeight:
+                    "600",
+                }}
+              >
+                {
+                  selectedPlanet.distance
+                }
+              </div>
+
+            </div>
+
+
+            <div
+              style={{
+                padding:
+                  "11px",
+
+                borderRadius:
+                  "10px",
+
+                background:
+                  "rgba(255,255,255,0.045)",
+              }}
+            >
+
+              <div
+                style={{
+                  fontSize:
+                    "10px",
+                  color:
+                    "#777",
+                  marginBottom:
+                    "4px",
+                }}
+              >
+                YEAR
+              </div>
+
+              <div
+                style={{
+                  fontSize:
+                    "13px",
+                  fontWeight:
+                    "600",
+                }}
+              >
+                {
+                  selectedPlanet.orbitalPeriod
+                }
+              </div>
+
+            </div>
+
+          </div>
+
+
+          {/* ACTION BUTTONS */}
+
+          <div
+            style={{
+              display: "flex",
+
+              gap: "8px",
+
+              marginTop:
+                "18px",
+            }}
+          >
+
+            <button
+              onClick={
+                handleFocusPlanet
+              }
+
+              style={{
+                flex: 1,
+
+                padding:
+                  "11px",
+
+                borderRadius:
+                  "10px",
+
+                border: "none",
+
+                background:
+                  "white",
+
+                color:
+                  "black",
+
+                fontWeight:
+                  "bold",
+
+                cursor:
+                  "pointer",
+              }}
+            >
+              🎯 Focus
+            </button>
+
+
+            <button
+              onClick={
+                handleCompare
+              }
+
+              style={{
+                flex: 1,
+
+                padding:
+                  "11px",
+
+                borderRadius:
+                  "10px",
+
+                border:
+                  "1px solid rgba(255,255,255,0.15)",
+
+                background:
+                  "rgba(255,255,255,0.08)",
+
+                color:
+                  "white",
+
+                fontWeight:
+                  "bold",
+
+                cursor:
+                  "pointer",
+              }}
+            >
+              ⭐ Compare
+            </button>
+
+          </div>
+
+        </div>
+
+      )}
+
+
+      {/* ========================================
+          BOTTOM CONTROL BAR
+      ======================================== */}
+
+      {showControls && (
+
+        <div
+          style={{
+            position: "absolute",
+
+            bottom: "20px",
+            left: "50%",
+
+            transform:
+              "translateX(-50%)",
+
+            zIndex: 20,
+
+            display: "flex",
+
+            alignItems:
+              "center",
+
+            gap: "8px",
+
+            padding:
+              "9px",
+
+            borderRadius:
+              "14px",
+
+            background:
+              "rgba(10,10,15,0.82)",
+
+            border:
+              "1px solid rgba(255,255,255,0.1)",
+
+            backdropFilter:
+              "blur(16px)",
+
+            boxShadow:
+              "0 12px 40px rgba(0,0,0,0.4)",
+          }}
+        >
+
+          {/* PAUSE */}
+
+          <button
+            onClick={() =>
+              setPaused(
+                !paused
+              )
+            }
+
+            style={buttonStyle}
+          >
+            {paused
+              ? "▶ Resume"
+              : "⏸ Pause"}
           </button>
 
 
-          {/* ⭐ COMPARE */}
+          {/* SPEED */}
+
+          <div
+            style={{
+              display: "flex",
+
+              alignItems:
+                "center",
+
+              gap: "5px",
+
+              padding:
+                "0 4px",
+            }}
+          >
+
+            <span
+              style={{
+                color:
+                  "#888",
+
+                fontSize:
+                  "12px",
+              }}
+            >
+              Speed
+            </span>
+
+            <select
+              value={
+                speedMultiplier
+              }
+
+              onChange={(event) =>
+                setSpeedMultiplier(
+                  Number(
+                    event.target.value
+                  )
+                )
+              }
+
+              style={{
+                padding:
+                  "8px",
+
+                borderRadius:
+                  "8px",
+
+                border:
+                  "1px solid rgba(255,255,255,0.1)",
+
+                background:
+                  "#17171d",
+
+                color:
+                  "white",
+
+                outline:
+                  "none",
+
+                cursor:
+                  "pointer",
+              }}
+            >
+
+              <option value={0.25}>
+                0.25x
+              </option>
+
+              <option value={0.5}>
+                0.5x
+              </option>
+
+              <option value={1}>
+                1x
+              </option>
+
+              <option value={2}>
+                2x
+              </option>
+
+              <option value={3}>
+                3x
+              </option>
+
+              <option value={4}>
+                4x
+              </option>
+
+              <option value={5}>
+                5x
+              </option>
+
+            </select>
+
+          </div>
+
+
+          {/* DIVIDER */}
+
+          <div
+            style={{
+              width: "1px",
+              height: "25px",
+              background:
+                "rgba(255,255,255,0.1)",
+            }}
+          />
+
+
+          {/* SOUND */}
 
           <button
             onClick={
-              handleCompare
+              toggleSound
             }
-            style={{
-              marginTop: "10px",
 
-              marginLeft: "5px",
-
-              padding: "10px 12px",
-
-              borderRadius: "8px",
-
-              border: "none",
-
-              cursor: "pointer",
-
-              fontWeight: "bold",
-            }}
+            style={buttonStyle}
           >
-            ⭐ Compare
+            {soundEnabled
+              ? "🔊 Sound"
+              : "🔇 Sound"}
+          </button>
+
+
+          {/* LABELS */}
+
+          <button
+            onClick={() =>
+              setShowLabels(
+                !showLabels
+              )
+            }
+
+            style={buttonStyle}
+          >
+            {showLabels
+              ? "🏷 Labels"
+              : "🏷 Hidden"}
           </button>
 
         </div>
@@ -1076,74 +1540,173 @@ function App() {
       )}
 
 
-      {/* =========================
-          ⭐ COMPARISON PANEL
-      ========================= */}
+      {/* ========================================
+          HIDE CONTROLS BUTTON
+      ======================================== */}
 
-      {comparePlanets.length > 0 && (
+      <button
+        onClick={() =>
+          setShowControls(
+            !showControls
+          )
+        }
+
+        style={{
+          position: "absolute",
+
+          bottom: "20px",
+          right: "20px",
+
+          zIndex: 20,
+
+          ...buttonStyle,
+        }}
+      >
+        {showControls
+          ? "⌄"
+          : "⌃"}
+      </button>
+
+
+      {/* ========================================
+          COMPARISON PANEL
+      ======================================== */}
+
+      {comparePlanets.length >
+        0 && (
 
         <div
           style={{
             position: "absolute",
 
-            bottom: "20px",
-            right: "20px",
+            bottom: "85px",
+            left: "20px",
 
-            width: "420px",
+            width: "390px",
+
+            padding:
+              "18px",
+
+            borderRadius:
+              "16px",
 
             background:
-              "rgba(20, 20, 20, 0.95)",
+              "rgba(10,10,15,0.9)",
 
-            color: "white",
+            border:
+              "1px solid rgba(255,255,255,0.1)",
 
-            padding: "18px",
+            backdropFilter:
+              "blur(16px)",
 
-            borderRadius: "12px",
+            color:
+              "white",
 
-            zIndex: 10,
+            zIndex: 20,
+
+            boxSizing:
+              "border-box",
           }}
         >
 
-          <h2
+          <div
             style={{
-              marginTop: 0,
+              display:
+                "flex",
+
+              justifyContent:
+                "space-between",
+
+              alignItems:
+                "center",
+
+              marginBottom:
+                "15px",
             }}
           >
-            ⭐ Planet Comparison
-          </h2>
 
+            <strong>
+              ⭐ Compare Planets
+            </strong>
 
-          {comparePlanets.length === 1 && (
+            <button
+              onClick={() =>
+                setComparePlanets(
+                  []
+                )
+              }
 
-            <p
               style={{
-                color: "#aaa",
+                border:
+                  "none",
+
+                background:
+                  "transparent",
+
+                color:
+                  "#888",
+
+                cursor:
+                  "pointer",
               }}
             >
-              Add one more planet to
-              compare.
-            </p>
+              Clear
+            </button>
+
+          </div>
+
+
+          {comparePlanets.length ===
+            1 && (
+
+            <div
+              style={{
+                color:
+                  "#888",
+
+                fontSize:
+                  "13px",
+              }}
+            >
+              Select another planet
+              to compare.
+            </div>
 
           )}
 
 
-          {comparePlanets.length === 2 && (
+          {comparePlanets.length ===
+            2 && (
 
             <div>
 
               <div
                 style={{
-                  display: "grid",
+                  display:
+                    "grid",
+
                   gridTemplateColumns:
-                    "100px 1fr 1fr",
-                  gap: "8px",
-                  alignItems: "center",
+                    "80px 1fr 1fr",
+
+                  gap:
+                    "9px",
+
+                  fontSize:
+                    "12px",
+
+                  alignItems:
+                    "center",
                 }}
               >
 
-                <strong>
-                  Stat
-                </strong>
+                <span
+                  style={{
+                    color:
+                      "#666",
+                  }}
+                >
+                  STAT
+                </span>
 
                 <strong>
                   {
@@ -1160,7 +1723,38 @@ function App() {
                 </strong>
 
 
+                <span
+                  style={{
+                    color:
+                      "#777",
+                  }}
+                >
+                  Temp
+                </span>
+
                 <span>
+                  🌡️{" "}
+                  {
+                    comparePlanets[0]
+                      .temperature
+                  }°C
+                </span>
+
+                <span>
+                  🌡️{" "}
+                  {
+                    comparePlanets[1]
+                      .temperature
+                  }°C
+                </span>
+
+
+                <span
+                  style={{
+                    color:
+                      "#777",
+                  }}
+                >
                   Radius
                 </span>
 
@@ -1179,26 +1773,12 @@ function App() {
                 </span>
 
 
-                <span>
-                  Distance
-                </span>
-
-                <span>
-                  {
-                    comparePlanets[0]
-                      .distance
-                  }
-                </span>
-
-                <span>
-                  {
-                    comparePlanets[1]
-                      .distance
-                  }
-                </span>
-
-
-                <span>
+                <span
+                  style={{
+                    color:
+                      "#777",
+                  }}
+                >
                   Moons
                 </span>
 
@@ -1217,7 +1797,12 @@ function App() {
                 </span>
 
 
-                <span>
+                <span
+                  style={{
+                    color:
+                      "#777",
+                  }}
+                >
                   Year
                 </span>
 
@@ -1240,11 +1825,14 @@ function App() {
 
               <div
                 style={{
-                  marginTop: "15px",
+                  display:
+                    "flex",
 
-                  display: "flex",
+                  gap:
+                    "7px",
 
-                  gap: "8px",
+                  marginTop:
+                    "15px",
                 }}
               >
 
@@ -1255,15 +1843,15 @@ function App() {
                         .name
                     )
                   }
+
                   style={{
+                    ...buttonStyle,
+
+                    fontSize:
+                      "11px",
+
                     padding:
-                      "7px 10px",
-
-                    border: "none",
-
-                    borderRadius: "6px",
-
-                    cursor: "pointer",
+                      "7px 9px",
                   }}
                 >
                   Remove{" "}
@@ -1281,15 +1869,15 @@ function App() {
                         .name
                     )
                   }
+
                   style={{
+                    ...buttonStyle,
+
+                    fontSize:
+                      "11px",
+
                     padding:
-                      "7px 10px",
-
-                    border: "none",
-
-                    borderRadius: "6px",
-
-                    cursor: "pointer",
+                      "7px 9px",
                   }}
                 >
                   Remove{" "}
@@ -1309,7 +1897,7 @@ function App() {
 
       )}
 
-    </>
+    </div>
   );
 }
 
