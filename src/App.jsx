@@ -1229,17 +1229,32 @@ function App() {
               </div>
 
               <div
-                style={{
-                  fontSize:
-                    "13px",
-                  fontWeight:
-                    "600",
-                }}
-              >
-                {
-                  selectedPlanet.orbitalPeriod
-                }
-              </div>
+  style={{
+    fontSize: "24px",
+    fontWeight: "bold",
+  }}
+>
+  🌡️{" "}
+  {selectedPlanet.temperature}
+  °C
+</div>
+
+<div
+  style={{
+    marginTop: "5px",
+    fontSize: "12px",
+    color: "#999",
+  }}
+>
+  {selectedPlanet.temperature >= 400
+    ? "🔥 Extremely Hot"
+    : selectedPlanet.temperature >= 100
+    ? "☀️ Very Hot"
+    : selectedPlanet.temperature >= 0
+    ? "🌿 Mild"
+    : "❄️ Very Cold"}
+</div>
+              
 
             </div>
 
