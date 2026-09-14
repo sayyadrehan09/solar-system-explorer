@@ -1,6 +1,7 @@
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { useRef, useState, useEffect } from "react";
 import * as THREE from "three";
+import Starfield from "./components/Starfield";
 
 import {
   OrbitControls,
@@ -472,6 +473,7 @@ function App() {
           height: "100%",
         }}
       >
+        <Starfield />
 
         <ambientLight
           intensity={2}
