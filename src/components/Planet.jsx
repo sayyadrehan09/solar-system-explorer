@@ -59,16 +59,14 @@ function Planet({
 
       <group position={position}>
 
-        <mesh
-          ref={(ref) => {
-            planetRef.current = ref;
-
-            if (registerRef) {
-              registerRef(ref);
-            }
-          }}
-
-          scale={scale}
+       <mesh
+  ref={(ref) => {
+    planetRef.current = ref;
+    if (registerRef) {
+      registerRef(ref);
+    }
+  }}
+  scale={hovered ? scale * 1.15 : scale}
 
           onClick={() => {
 
