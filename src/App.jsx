@@ -1064,6 +1064,28 @@ function App() {
 
           </div>
 
+          {/* PLANET FACT */}
+<div
+  style={{
+    marginBottom: "16px",
+    padding: "12px",
+    background: "rgba(255,255,255,0.06)",
+    borderRadius: "12px",
+    border: "1px solid rgba(255,255,255,0.08)",
+    color: "#ddd",
+    fontSize: "13px",
+    lineHeight: "1.6",
+  }}
+>
+  <strong style={{ color: "#8c8cff" }}>
+    ✨ Did You Know?
+  </strong>
+
+  <div style={{ marginTop: "6px" }}>
+    {selectedPlanet.fact || "Explore this planet to discover more!"}
+  </div>
+</div>
+
 
           {/* STATS */}
 

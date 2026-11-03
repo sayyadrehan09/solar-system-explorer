@@ -55,7 +55,7 @@ const planets = [
     distance: "149.6 Million km",
     orbitalPeriod: "365 Days",
     moons: 1,
-
+    fact: "Earth is the only known planet to support life.",
     temperature: 15
   },
 
@@ -75,7 +75,7 @@ const planets = [
     distance: "227.9 Million km",
     orbitalPeriod: "687 Days",
     moons: 2,
-
+    fact: "Mars is home to Olympus Mons, the largest volcano in the solar system.",
     temperature: -65
   },
 
