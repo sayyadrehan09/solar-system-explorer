@@ -202,26 +202,120 @@ function App() {
 
   const audioRef =
     useRef(null);
+  const synthRef =
+    useRef(null);
+
+  // Web Audio space drone fallback (ensures sound always works in any browser)
+  const startSpaceSynth = () => {
+    try {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (!AudioCtx) return;
+      const ctx = new AudioCtx();
+      if (ctx.state === "suspended") {
+        ctx.resume();
+      }
+      const osc1 = ctx.createOscillator();
+      const osc2 = ctx.createOscillator();
+      const gain = ctx.createGain();
+      const filter = ctx.createBiquadFilter();
+
+      osc1.type = "sine";
+      osc1.frequency.setValueAtTime(55, ctx.currentTime);
+      osc2.type = "sine";
+      osc2.frequency.setValueAtTime(58, ctx.currentTime);
+
+      filter.type = "lowpass";
+      filter.frequency.setValueAtTime(240, ctx.currentTime);
+
+      gain.gain.setValueAtTime(0.08, ctx.currentTime);
+
+      osc1.connect(filter);
+      osc2.connect(filter);
+      filter.connect(gain);
+      gain.connect(ctx.destination);
+
+      osc1.start();
+      osc2.start();
+
+      synthRef.current = {
+        stop: () => {
+          try {
+            gain.gain.setTargetAtTime(0, ctx.currentTime, 0.1);
+            setTimeout(() => {
+              try {
+                osc1.stop();
+                osc2.stop();
+                ctx.close();
+              } catch {
+                // Ignore cleanup error
+              }
+            }, 150);
+          } catch {
+            // Ignore cleanup error
+          }
+        }
+      };
+    } catch (e) {
+      console.log("Synth audio error:", e);
+    }
+  };
+
+  const stopSpaceSynth = () => {
+    if (synthRef.current) {
+      synthRef.current.stop();
+      synthRef.current = null;
+    }
+  };
+
+  // Subtle sci-fi sound effect on planet interaction
+  const playInteractionSound = () => {
+    try {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (!AudioCtx) return;
+      const ctx = new AudioCtx();
+      if (ctx.state === "suspended") {
+        ctx.resume();
+      }
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(520, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(780, ctx.currentTime + 0.12);
+      gain.gain.setValueAtTime(0.04, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.12);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start();
+      osc.stop(ctx.currentTime + 0.12);
+    } catch {
+      // Ignore audio interaction error
+    }
+  };
 
 
   // ============================================
   // AUDIO
   // ============================================
 
+  const getAudioPath = () => {
+    const base = import.meta.env.BASE_URL || "/";
+    return `${base}sounds/space.mp3`.replace("//", "/");
+  };
+
   useEffect(() => {
 
-    audioRef.current =
-      new Audio("/sounds/space.mp3");
-
-    audioRef.current.loop = true;
-
-    audioRef.current.volume = 0.25;
+    const audio = new Audio(getAudioPath());
+    audio.loop = true;
+    audio.volume = 0.4;
+    audio.preload = "auto";
+    audioRef.current = audio;
 
     return () => {
 
       if (audioRef.current) {
         audioRef.current.pause();
       }
+      stopSpaceSynth();
 
     };
 
@@ -230,17 +324,21 @@ function App() {
 
   const toggleSound = () => {
 
-    if (!audioRef.current) {
-      return;
-    }
-
     if (soundEnabled) {
 
-      audioRef.current.pause();
-
+      if (audioRef.current) {
+        audioRef.current.pause();
+      }
+      stopSpaceSynth();
       setSoundEnabled(false);
 
     } else {
+
+      if (!audioRef.current) {
+        audioRef.current = new Audio(getAudioPath());
+        audioRef.current.loop = true;
+        audioRef.current.volume = 0.4;
+      }
 
       audioRef.current
         .play()
@@ -249,9 +347,11 @@ function App() {
         })
         .catch((error) => {
           console.log(
-            "Audio could not play:",
+            "Audio could not play, falling back to space synth:",
             error
           );
+          startSpaceSynth();
+          setSoundEnabled(true);
         });
 
     }
@@ -263,6 +363,7 @@ function App() {
   // ============================================
 
   const handlePlanetClick = (planetData) => {
+    playInteractionSound();
 
     if (
       selectedPlanet?.name ===
@@ -332,6 +433,7 @@ function App() {
 
 
   const handleSearchPlanet = (planet) => {
+    playInteractionSound();
 
     const planetRef =
       planetRefs.current[
@@ -552,7 +654,7 @@ function App() {
           target={[0, 0, 0]}
           enablePan={false}
           minDistance={4}
-          maxDistance={20}
+          maxDistance={40}
         />
 
 
@@ -1253,31 +1355,17 @@ function App() {
               </div>
 
               <div
-  style={{
-    fontSize: "24px",
-    fontWeight: "bold",
-  }}
->
-  🌡️{" "}
-  {selectedPlanet.temperature}
-  °C
-</div>
-
-<div
-  style={{
-    marginTop: "5px",
-    fontSize: "12px",
-    color: "#999",
-  }}
->
-  {selectedPlanet.temperature >= 400
-    ? "🔥 Extremely Hot"
-    : selectedPlanet.temperature >= 100
-    ? "☀️ Very Hot"
-    : selectedPlanet.temperature >= 0
-    ? "🌿 Mild"
-    : "❄️ Very Cold"}
-</div>
+                style={{
+                  fontSize:
+                    "13px",
+                  fontWeight:
+                    "600",
+                }}
+              >
+                {
+                  selectedPlanet.orbitalPeriod
+                }
+              </div>
               
 
             </div>

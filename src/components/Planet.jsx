@@ -21,6 +21,7 @@ function Planet({
   orbitalPeriod,
   moons,
   temperature,
+  fact,
   onPlanetClick,
   showLabel,
   paused,
@@ -94,6 +95,8 @@ function Planet({
 
               temperature,
 
+              fact,
+
               position: [
                 worldPosition.x,
                 worldPosition.y,
@@ -125,7 +128,7 @@ function Planet({
           <meshStandardMaterial
             map={textureMap}
             color={
-              hovered
+              hovered || selected
                 ? "#dddddd"
                 : "white"
             }

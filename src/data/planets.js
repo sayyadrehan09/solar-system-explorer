@@ -15,7 +15,7 @@ const planets = [
     distance: "57.9 Million km",
     orbitalPeriod: "88 Days",
     moons: 0,
-
+    fact: "Mercury is the smallest planet and closest to the Sun.",
     temperature: 167
   },
 
@@ -35,7 +35,7 @@ const planets = [
     distance: "108.2 Million km",
     orbitalPeriod: "225 Days",
     moons: 0,
-
+    fact: "Venus is the hottest planet with thick clouds of sulfuric acid.",
     temperature: 464
   },
 
@@ -80,10 +80,30 @@ const planets = [
   },
 
   {
+    name: "Jupiter",
+    texture: "/textures/jupiter.jpg",
+    position: [8, 0, 0],
+    scale: 0.85,
+
+    rotationSpeed: 0.03,
+    orbitSpeed: 0.005,
+
+    hasMoon: true,
+    hasRing: false,
+
+    radius: "69,911 km",
+    distance: "778.5 Million km",
+    orbitalPeriod: "11.9 Years",
+    moons: 95,
+    fact: "Jupiter is the largest planet in our solar system and has a giant storm called the Great Red Spot.",
+    temperature: -110
+  },
+
+  {
     name: "Saturn",
     texture: "/textures/saturn.jpg",
-    position: [10, 0, 0],
-    scale: 0.8,
+    position: [10.5, 0, 0],
+    scale: 0.75,
 
     rotationSpeed: 0.02,
     orbitSpeed: 0.003,
@@ -95,10 +115,49 @@ const planets = [
     distance: "1.43 Billion km",
     orbitalPeriod: "29.5 Years",
     moons: 146,
-
+    fact: "Saturn has the most spectacular ring system made of billions of chunks of ice and rock.",
     temperature: -140
+  },
+
+  {
+    name: "Uranus",
+    texture: "/textures/uranus.jpg",
+    position: [13, 0, 0],
+    scale: 0.55,
+
+    rotationSpeed: 0.015,
+    orbitSpeed: 0.002,
+
+    hasMoon: true,
+    hasRing: false,
+
+    radius: "25,362 km",
+    distance: "2.87 Billion km",
+    orbitalPeriod: "84 Years",
+    moons: 28,
+    fact: "Uranus rotates on its side, making it unique in the solar system.",
+    temperature: -195
+  },
+
+  {
+    name: "Neptune",
+    texture: "/textures/neptune.jpg",
+    position: [15.5, 0, 0],
+    scale: 0.53,
+
+    rotationSpeed: 0.015,
+    orbitSpeed: 0.0012,
+
+    hasMoon: true,
+    hasRing: false,
+
+    radius: "24,622 km",
+    distance: "4.5 Billion km",
+    orbitalPeriod: "165 Years",
+    moons: 16,
+    fact: "Neptune has the fastest supersonic winds in the solar system, reaching over 2,000 km/h.",
+    temperature: -200
   }
 ];
-
 
 export default planets;
