@@ -89,8 +89,8 @@ function CameraController({
       targetPosition.current =
         new THREE.Vector3(
           0,
-          2,
-          6
+          9,
+          20
         );
 
       targetLookAt.current.set(
@@ -567,8 +567,8 @@ function App() {
 
       <Canvas
         camera={{
-          position: [0, 2, 6],
-          fov: 75,
+          position: [0, 9, 20],
+          fov: 65,
         }}
         style={{
           width: "100%",
@@ -654,7 +654,7 @@ function App() {
           target={[0, 0, 0]}
           enablePan={false}
           minDistance={4}
-          maxDistance={40}
+          maxDistance={50}
         />
 
 
