@@ -89,8 +89,8 @@ function CameraController({
       targetPosition.current =
         new THREE.Vector3(
           0,
-          9,
-          20
+          7.5,
+          17
         );
 
       targetLookAt.current.set(
@@ -189,6 +189,18 @@ function App() {
 
   const [showControls, setShowControls] =
     useState(true);
+
+  const [isTouring, setIsTouring] =
+    useState(false);
+
+  const [tourIndex, setTourIndex] =
+    useState(0);
+
+  const [tourPaused, setTourPaused] =
+    useState(false);
+
+  const [tourProgress, setTourProgress] =
+    useState(0);
 
 
   const planetRefs =
@@ -359,10 +371,27 @@ function App() {
 
 
   // ============================================
-  // PLANET CLICK
+  // PLANET CLICK & FOCUS
   // ============================================
 
+  const focusOnPlanet = (planet) => {
+    const planetRef = planetRefs.current[planet.name];
+    if (!planetRef) return;
+
+    const worldPosition = planetRef.getWorldPosition(new THREE.Vector3());
+    const planetData = {
+      ...planet,
+      position: [worldPosition.x, worldPosition.y, worldPosition.z],
+      ref: planetRef,
+    };
+
+    setSelectedPlanet(planetData);
+    selectedPlanetRef.current = planetRef;
+    setFocusRequest((previous) => previous + 1);
+  };
+
   const handlePlanetClick = (planetData) => {
+    stopTour();
     playInteractionSound();
 
     if (
@@ -388,6 +417,75 @@ function App() {
 
 
   // ============================================
+  // GUIDED SOLAR TOUR
+  // ============================================
+
+  const stopTour = () => {
+    setIsTouring(false);
+    setTourPaused(false);
+    setTourProgress(0);
+  };
+
+  const startTour = () => {
+    setTourIndex(0);
+    setTourPaused(false);
+    setTourProgress(0);
+    setIsTouring(true);
+  };
+
+  const nextTourPlanet = () => {
+    setTourProgress(0);
+    setTourIndex((prev) => (prev + 1) % planets.length);
+  };
+
+  const prevTourPlanet = () => {
+    setTourProgress(0);
+    setTourIndex((prev) => (prev - 1 + planets.length) % planets.length);
+  };
+
+  useEffect(() => {
+    if (!isTouring) return;
+    const planet = planets[tourIndex];
+    if (planet) {
+      const t = setTimeout(() => {
+        focusOnPlanet(planet);
+        playInteractionSound();
+      }, 50);
+      return () => clearTimeout(t);
+    }
+  }, [tourIndex, isTouring]);
+
+  useEffect(() => {
+    if (!isTouring || tourPaused) return;
+
+    const intervalDuration = 6500;
+    const stepDuration = 100;
+    let elapsed = 0;
+
+    const timer = setInterval(() => {
+      elapsed += stepDuration;
+      setTourProgress(Math.min(100, (elapsed / intervalDuration) * 100));
+
+      if (elapsed >= intervalDuration) {
+        setTourProgress(0);
+        setTourIndex((prevIndex) => {
+          if (prevIndex + 1 >= planets.length) {
+            setIsTouring(false);
+            setResetRequest((prev) => prev + 1);
+            setSelectedPlanet(null);
+            selectedPlanetRef.current = null;
+            return 0;
+          }
+          return prevIndex + 1;
+        });
+      }
+    }, stepDuration);
+
+    return () => clearInterval(timer);
+  }, [isTouring, tourIndex, tourPaused]);
+
+
+  // ============================================
   // FOCUS
   // ============================================
 
@@ -405,6 +503,7 @@ function App() {
   // ============================================
 
   const handleResetCamera = () => {
+    stopTour();
 
     setResetRequest(
       (previous) =>
@@ -433,6 +532,7 @@ function App() {
 
 
   const handleSearchPlanet = (planet) => {
+    stopTour();
     playInteractionSound();
 
     const planetRef =
@@ -567,7 +667,7 @@ function App() {
 
       <Canvas
         camera={{
-          position: [0, 9, 20],
+          position: [0, 7.5, 17],
           fov: 65,
         }}
         style={{
@@ -751,16 +851,175 @@ function App() {
 
         <div
           style={{
-            fontSize: "12px",
-            color: "#aaa",
+            display: "flex",
+            alignItems: "center",
+            gap: "14px",
           }}
         >
-          {selectedPlanet
-            ? `Exploring ${selectedPlanet.name}`
-            : "Explore the Solar System"}
+          <div
+            style={{
+              fontSize: "12px",
+              color: "#aaa",
+            }}
+          >
+            {isTouring
+              ? `Touring Stop ${tourIndex + 1} of ${planets.length}: ${planets[tourIndex]?.name}`
+              : selectedPlanet
+              ? `Exploring ${selectedPlanet.name}`
+              : "Explore the Solar System"}
+          </div>
+
+          <button
+            onClick={isTouring ? stopTour : startTour}
+            style={{
+              ...buttonStyle,
+              background: isTouring
+                ? "linear-gradient(135deg, rgba(239, 68, 68, 0.4), rgba(185, 28, 28, 0.6))"
+                : "linear-gradient(135deg, rgba(99, 102, 241, 0.4), rgba(139, 92, 246, 0.6))",
+              border: isTouring
+                ? "1px solid rgba(239, 68, 68, 0.5)"
+                : "1px solid rgba(139, 92, 246, 0.5)",
+              padding: "7px 14px",
+              fontSize: "13px",
+              display: "flex",
+              alignItems: "center",
+              gap: "6px",
+              boxShadow: isTouring
+                ? "0 0 15px rgba(239, 68, 68, 0.3)"
+                : "0 0 15px rgba(139, 92, 246, 0.3)",
+            }}
+          >
+            {isTouring ? "⏹ Exit Tour" : "🚀 Take Solar Tour"}
+          </button>
         </div>
 
       </div>
+
+
+      {/* ========================================
+          GUIDED TOUR BANNER
+      ======================================== */}
+
+      {isTouring && (
+        <div
+          style={{
+            position: "absolute",
+            top: "84px",
+            left: "50%",
+            transform: "translateX(-50%)",
+            zIndex: 25,
+            display: "flex",
+            flexDirection: "column",
+            gap: "8px",
+            padding: "10px 16px",
+            borderRadius: "14px",
+            background: "rgba(10, 10, 18, 0.88)",
+            border: "1px solid rgba(139, 92, 246, 0.4)",
+            backdropFilter: "blur(16px)",
+            boxShadow:
+              "0 10px 30px rgba(0, 0, 0, 0.5), 0 0 20px rgba(139, 92, 246, 0.2)",
+            color: "white",
+            minWidth: "320px",
+            boxSizing: "border-box",
+          }}
+        >
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              gap: "12px",
+            }}
+          >
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "8px",
+              }}
+            >
+              <span style={{ fontSize: "16px" }}>🛸</span>
+              <div>
+                <div
+                  style={{
+                    fontSize: "10px",
+                    color: "#a5b4fc",
+                    textTransform: "uppercase",
+                    letterSpacing: "1px",
+                  }}
+                >
+                  Solar Tour • Stop {tourIndex + 1} of {planets.length}
+                </div>
+                <strong style={{ fontSize: "15px" }}>
+                  {planets[tourIndex]?.name}
+                </strong>
+              </div>
+            </div>
+
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "6px",
+              }}
+            >
+              <button
+                onClick={prevTourPlanet}
+                style={{
+                  ...buttonStyle,
+                  padding: "5px 10px",
+                  fontSize: "12px",
+                }}
+                title="Previous Planet"
+              >
+                ❮
+              </button>
+              <button
+                onClick={() => setTourPaused(!tourPaused)}
+                style={{
+                  ...buttonStyle,
+                  padding: "5px 10px",
+                  fontSize: "12px",
+                }}
+                title={tourPaused ? "Resume Tour" : "Pause Tour"}
+              >
+                {tourPaused ? "▶" : "⏸"}
+              </button>
+              <button
+                onClick={nextTourPlanet}
+                style={{
+                  ...buttonStyle,
+                  padding: "5px 10px",
+                  fontSize: "12px",
+                }}
+                title="Next Planet"
+              >
+                ❯
+              </button>
+            </div>
+          </div>
+
+          {/* Progress Bar */}
+          <div
+            style={{
+              width: "100%",
+              height: "3px",
+              background: "rgba(255, 255, 255, 0.1)",
+              borderRadius: "2px",
+              overflow: "hidden",
+            }}
+          >
+            <div
+              style={{
+                width: `${tourProgress}%`,
+                height: "100%",
+                background: "linear-gradient(90deg, #6366f1, #a855f7)",
+                transition: "width 0.1s linear",
+              }}
+            />
+          </div>
+        </div>
+      )}
 
 
       {/* ========================================
