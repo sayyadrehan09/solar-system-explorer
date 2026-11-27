@@ -12,6 +12,7 @@ import Sun from "./components/Sun";
 import Planet from "./components/Planet";
 import planets from "./data/planets";
 import Orbit from "./components/Orbit";
+import AsteroidBelt from "./components/AsteroidBelt";
 
 
 // ============================================
@@ -188,6 +189,9 @@ function App() {
     useState([]);
 
   const [showControls, setShowControls] =
+    useState(true);
+
+  const [showAsteroids, setShowAsteroids] =
     useState(true);
 
   const [isTouring, setIsTouring] =
@@ -697,6 +701,13 @@ function App() {
         <Sun
           position={[0, 0, 0]}
         />
+
+        {showAsteroids && (
+          <AsteroidBelt
+            paused={paused}
+            speedMultiplier={speedMultiplier}
+          />
+        )}
 
 
         {planets.map((planet) => (
@@ -1919,6 +1930,23 @@ function App() {
             {showLabels
               ? "🏷 Labels"
               : "🏷 Hidden"}
+          </button>
+
+
+          {/* ASTEROID BELT */}
+
+          <button
+            onClick={() =>
+              setShowAsteroids(
+                !showAsteroids
+              )
+            }
+
+            style={buttonStyle}
+          >
+            {showAsteroids
+              ? "🪨 Belt"
+              : "🪨 Hidden"}
           </button>
 
         </div>
