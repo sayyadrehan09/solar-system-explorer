@@ -14,9 +14,9 @@ function AsteroidBelt({ paused = false, speedMultiplier = 1, count = 1600 }) {
       // Angular position around the Sun
       const angle = Math.random() * Math.PI * 2;
 
-      // Distance between Mars (6.0) and Jupiter (8.0)
-      // Slight density peak in the center of the belt (~7.1)
-      const radius = 6.7 + Math.random() * 0.85;
+      // Distance between Mars (6.5) and Jupiter (11.5)
+      // Realistic Asteroid Belt band centered at ~9.0
+      const radius = 8.2 + Math.random() * 1.6;
 
       // Subtle vertical dispersion for 3D thickness
       const y = (Math.random() - 0.5) * 0.35;

@@ -2,7 +2,7 @@ const planets = [
   {
     name: "Mercury",
     texture: "/textures/mercury.jpg",
-    position: [2, 0, 0],
+    position: [2.8, 0, 0],
     scale: 0.2,
 
     rotationSpeed: 0.01,
@@ -22,7 +22,7 @@ const planets = [
   {
     name: "Venus",
     texture: "/textures/venus.jpg",
-    position: [3, 0, 0],
+    position: [3.9, 0, 0],
     scale: 0.35,
 
     rotationSpeed: 0.005,
@@ -42,7 +42,7 @@ const planets = [
   {
     name: "Earth",
     texture: "/textures/earth.jpg",
-    position: [4, 0, 0],
+    position: [4.8, 0, 0],
     scale: 0.5,
 
     rotationSpeed: 0.02,
@@ -62,7 +62,7 @@ const planets = [
   {
     name: "Mars",
     texture: "/textures/mars.jpg",
-    position: [6, 0, 0],
+    position: [6.5, 0, 0],
     scale: 0.4,
 
     rotationSpeed: 0.015,
@@ -82,7 +82,7 @@ const planets = [
   {
     name: "Jupiter",
     texture: "/textures/jupiter.jpg",
-    position: [8, 0, 0],
+    position: [11.5, 0, 0],
     scale: 0.85,
 
     rotationSpeed: 0.03,
@@ -102,7 +102,7 @@ const planets = [
   {
     name: "Saturn",
     texture: "/textures/saturn.jpg",
-    position: [10.5, 0, 0],
+    position: [17.0, 0, 0],
     scale: 0.75,
 
     rotationSpeed: 0.02,
@@ -122,7 +122,7 @@ const planets = [
   {
     name: "Uranus",
     texture: "/textures/uranus.jpg",
-    position: [13, 0, 0],
+    position: [23.5, 0, 0],
     scale: 0.55,
 
     rotationSpeed: 0.015,
@@ -142,7 +142,7 @@ const planets = [
   {
     name: "Neptune",
     texture: "/textures/neptune.jpg",
-    position: [15.5, 0, 0],
+    position: [30.0, 0, 0],
     scale: 0.53,
 
     rotationSpeed: 0.015,

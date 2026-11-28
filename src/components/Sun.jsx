@@ -29,22 +29,20 @@ function Sun({ position }) {
       >
         <sphereGeometry args={[1.5, 64, 64]} />
 
-        <meshStandardMaterial
+        <meshBasicMaterial
           map={sunTexture}
-          emissiveMap={sunTexture}
-          emissiveIntensity={1.5}
         />
       </mesh>
 
 
       {/* Sun Corona */}
       <mesh position={position}>
-        <sphereGeometry args={[1.75, 64, 64]} />
+        <sphereGeometry args={[1.85, 64, 64]} />
 
         <meshBasicMaterial
-          color="#ff8a00"
+          color="#ffaa33"
           transparent
-          opacity={0.25}
+          opacity={0.35}
           side={BackSide}
           blending={AdditiveBlending}
           depthWrite={false}

@@ -90,8 +90,8 @@ function CameraController({
       targetPosition.current =
         new THREE.Vector3(
           0,
-          7.5,
-          17
+          14,
+          33
         );
 
       targetLookAt.current.set(
@@ -671,7 +671,7 @@ function App() {
 
       <Canvas
         camera={{
-          position: [0, 7.5, 17],
+          position: [0, 14, 33],
           fov: 65,
         }}
         style={{
@@ -682,12 +682,13 @@ function App() {
         <Starfield />
 
         <ambientLight
-          intensity={2}
+          intensity={0.1}
         />
 
         <pointLight
           position={[0, 0, 0]}
-          intensity={80}
+          intensity={4.5}
+          decay={0}
         />
 
         <Stars
@@ -765,7 +766,7 @@ function App() {
           target={[0, 0, 0]}
           enablePan={false}
           minDistance={4}
-          maxDistance={50}
+          maxDistance={80}
         />
 
 
@@ -1266,34 +1267,21 @@ function App() {
         <div
           style={{
             position: "absolute",
-
-            top: "155px",
+            top: "92px",
             right: "20px",
-
-            width: "300px",
-
-            padding: "22px",
-
+            width: "320px",
+            maxHeight: "calc(100vh - 180px)",
+            overflowY: "auto",
+            padding: "20px",
             borderRadius: "18px",
-
-            background:
-              "rgba(12,12,18,0.88)",
-
-            border:
-              "1px solid rgba(255,255,255,0.12)",
-
-            backdropFilter:
-              "blur(18px)",
-
+            background: "rgba(10, 12, 22, 0.88)",
+            border: "1px solid rgba(139, 92, 246, 0.3)",
+            backdropFilter: "blur(20px)",
             color: "white",
-
             zIndex: 20,
-
             boxShadow:
-              "0 20px 60px rgba(0,0,0,0.45)",
-
-            boxSizing:
-              "border-box",
+              "0 20px 50px rgba(0, 0, 0, 0.6), 0 0 25px rgba(99, 102, 241, 0.15)",
+            boxSizing: "border-box",
           }}
         >
 
@@ -1301,77 +1289,75 @@ function App() {
 
           <button
             onClick={() => {
-
-              setSelectedPlanet(
-                null
-              );
-
-              selectedPlanetRef.current =
-                null;
-
+              setSelectedPlanet(null);
+              selectedPlanetRef.current = null;
             }}
-
             style={{
               position: "absolute",
-
-              top: "12px",
-              right: "12px",
-
-              width: "32px",
-              height: "32px",
-
-              borderRadius:
-                "50%",
-
-              border: "none",
-
-              background:
-                "rgba(255,255,255,0.08)",
-
-              color: "white",
-
-              fontSize: "20px",
-
-              cursor:
-                "pointer",
+              top: "14px",
+              right: "14px",
+              width: "28px",
+              height: "28px",
+              borderRadius: "50%",
+              border: "1px solid rgba(255, 255, 255, 0.1)",
+              background: "rgba(255, 255, 255, 0.06)",
+              color: "#aaa",
+              fontSize: "18px",
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              lineHeight: 1,
             }}
           >
             ×
           </button>
 
 
-          {/* PLANET NAME */}
+          {/* CATEGORY & RANK */}
 
           <div
             style={{
-              color: "#8c8cff",
-
-              fontSize: "11px",
-
-              letterSpacing:
-                "2px",
-
-              textTransform:
-                "uppercase",
-
-              marginBottom:
-                "6px",
+              display: "flex",
+              alignItems: "center",
+              gap: "6px",
+              marginBottom: "6px",
             }}
           >
-            Planet
+            <span
+              style={{
+                fontSize: "10px",
+                fontWeight: "700",
+                letterSpacing: "1.2px",
+                textTransform: "uppercase",
+                padding: "3px 8px",
+                borderRadius: "6px",
+                background: "rgba(99, 102, 241, 0.2)",
+                border: "1px solid rgba(99, 102, 241, 0.4)",
+                color: "#a5b4fc",
+              }}
+            >
+              PLANET #{planets.findIndex((p) => p.name === selectedPlanet.name) + 1}
+            </span>
+            <span style={{ fontSize: "11px", color: "#64748b" }}>•</span>
+            <span
+              style={{
+                fontSize: "11px",
+                color: "#94a3b8",
+                letterSpacing: "0.5px",
+              }}
+            >
+              Solar System
+            </span>
           </div>
 
 
           <h2
             style={{
-              margin:
-                "0 0 20px 0",
-
-              fontSize:
-                "28px",
-
-              letterSpacing:
-                "0.5px",
+              margin: "0 0 14px 0",
+              fontSize: "26px",
+              fontWeight: "800",
+              letterSpacing: "0.5px",
             }}
           >
             {selectedPlanet.name}
@@ -1382,264 +1368,242 @@ function App() {
 
           <div
             style={{
-              padding:
-                "14px",
-
-              marginBottom:
-                "16px",
-
-              borderRadius:
-                "12px",
-
-              background:
-                "rgba(255,255,255,0.06)",
-
-              border:
-                "1px solid rgba(255,255,255,0.08)",
+              padding: "10px 14px",
+              marginBottom: "14px",
+              borderRadius: "12px",
+              background: "rgba(255, 255, 255, 0.04)",
+              border: "1px solid rgba(255, 255, 255, 0.08)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
             }}
           >
+            <div>
+              <div
+                style={{
+                  fontSize: "10px",
+                  color: "#94a3b8",
+                  textTransform: "uppercase",
+                  letterSpacing: "1px",
+                  marginBottom: "2px",
+                }}
+              >
+                Avg Temperature
+              </div>
 
-            <div
-              style={{
-                fontSize:
-                  "11px",
-
-                color:
-                  "#888",
-
-                marginBottom:
-                  "5px",
-
-                textTransform:
-                  "uppercase",
-
-                letterSpacing:
-                  "1px",
-              }}
-            >
-              Average Temperature
+              <div
+                style={{
+                  fontSize: "20px",
+                  fontWeight: "bold",
+                  color:
+                    selectedPlanet.temperature >= 400
+                      ? "#f87171"
+                      : selectedPlanet.temperature >= 100
+                      ? "#fb923c"
+                      : selectedPlanet.temperature >= 0
+                      ? "#34d399"
+                      : selectedPlanet.temperature >= -100
+                      ? "#38bdf8"
+                      : "#818cf8",
+                }}
+              >
+                🌡️ {selectedPlanet.temperature}°C
+              </div>
             </div>
 
             <div
               style={{
-                fontSize:
-                  "24px",
-
-                fontWeight:
-                  "bold",
+                fontSize: "11px",
+                padding: "4px 8px",
+                borderRadius: "6px",
+                background: "rgba(255, 255, 255, 0.06)",
+                color: "#cbd5e1",
+                fontWeight: "600",
               }}
             >
-              🌡️{" "}
-              {selectedPlanet.temperature}
-              °C
+              {selectedPlanet.temperature >= 400
+                ? "🔥 Scorching"
+                : selectedPlanet.temperature >= 100
+                ? "☀️ High Heat"
+                : selectedPlanet.temperature >= 0
+                ? "🌿 Habitable"
+                : selectedPlanet.temperature >= -100
+                ? "❄️ Sub-Zero"
+                : "🧊 Deep Freeze"}
             </div>
-
           </div>
 
-          {/* PLANET FACT */}
-<div
-  style={{
-    marginBottom: "16px",
-    padding: "12px",
-    background: "rgba(255,255,255,0.06)",
-    borderRadius: "12px",
-    border: "1px solid rgba(255,255,255,0.08)",
-    color: "#ddd",
-    fontSize: "13px",
-    lineHeight: "1.6",
-  }}
->
-  <strong style={{ color: "#8c8cff" }}>
-    ✨ Did You Know?
-  </strong>
 
-  <div style={{ marginTop: "6px" }}>
-    {selectedPlanet.fact || "Explore this planet to discover more!"}
-  </div>
-</div>
-
-
-          {/* STATS */}
+          {/* 2x2 TELEMETRY STATS */}
 
           <div
             style={{
               display: "grid",
-
-              gridTemplateColumns:
-                "1fr 1fr",
-
-              gap: "10px",
+              gridTemplateColumns: "1fr 1fr",
+              gap: "8px",
+              marginBottom: "14px",
             }}
           >
-
             <div
               style={{
-                padding:
-                  "11px",
-
-                borderRadius:
-                  "10px",
-
-                background:
-                  "rgba(255,255,255,0.045)",
+                padding: "10px 12px",
+                borderRadius: "10px",
+                background: "rgba(255, 255, 255, 0.04)",
+                border: "1px solid rgba(255, 255, 255, 0.06)",
               }}
             >
-
               <div
                 style={{
-                  fontSize:
-                    "10px",
-                  color:
-                    "#777",
-                  marginBottom:
-                    "4px",
+                  fontSize: "10px",
+                  color: "#64748b",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.8px",
+                  marginBottom: "3px",
                 }}
               >
-                RADIUS
+                📏 Radius
               </div>
 
               <div
                 style={{
-                  fontSize:
-                    "13px",
-                  fontWeight:
-                    "600",
+                  fontSize: "13px",
+                  fontWeight: "700",
                 }}
               >
-                {
-                  selectedPlanet.radius
-                }
+                {selectedPlanet.radius}
               </div>
-
             </div>
 
 
             <div
               style={{
-                padding:
-                  "11px",
-
-                borderRadius:
-                  "10px",
-
-                background:
-                  "rgba(255,255,255,0.045)",
+                padding: "10px 12px",
+                borderRadius: "10px",
+                background: "rgba(255, 255, 255, 0.04)",
+                border: "1px solid rgba(255, 255, 255, 0.06)",
               }}
             >
-
               <div
                 style={{
-                  fontSize:
-                    "10px",
-                  color:
-                    "#777",
-                  marginBottom:
-                    "4px",
+                  fontSize: "10px",
+                  color: "#64748b",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.8px",
+                  marginBottom: "3px",
                 }}
               >
-                MOONS
+                🌑 Moons
               </div>
 
               <div
                 style={{
-                  fontSize:
-                    "13px",
-                  fontWeight:
-                    "600",
+                  fontSize: "13px",
+                  fontWeight: "700",
                 }}
               >
-                {
-                  selectedPlanet.moons
-                }
+                {selectedPlanet.moons}{" "}
+                {selectedPlanet.moons === 1 ? "Moon" : "Moons"}
               </div>
-
             </div>
 
 
             <div
               style={{
-                padding:
-                  "11px",
-
-                borderRadius:
-                  "10px",
-
-                background:
-                  "rgba(255,255,255,0.045)",
+                padding: "10px 12px",
+                borderRadius: "10px",
+                background: "rgba(255, 255, 255, 0.04)",
+                border: "1px solid rgba(255, 255, 255, 0.06)",
               }}
             >
-
               <div
                 style={{
-                  fontSize:
-                    "10px",
-                  color:
-                    "#777",
-                  marginBottom:
-                    "4px",
+                  fontSize: "10px",
+                  color: "#64748b",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.8px",
+                  marginBottom: "3px",
                 }}
               >
-                DISTANCE
+                ☀️ Sun Distance
               </div>
 
               <div
                 style={{
-                  fontSize:
-                    "13px",
-                  fontWeight:
-                    "600",
+                  fontSize: "13px",
+                  fontWeight: "700",
                 }}
               >
-                {
-                  selectedPlanet.distance
-                }
+                {selectedPlanet.distance}
               </div>
-
             </div>
 
 
             <div
               style={{
-                padding:
-                  "11px",
-
-                borderRadius:
-                  "10px",
-
-                background:
-                  "rgba(255,255,255,0.045)",
+                padding: "10px 12px",
+                borderRadius: "10px",
+                background: "rgba(255, 255, 255, 0.04)",
+                border: "1px solid rgba(255, 255, 255, 0.06)",
               }}
             >
-
               <div
                 style={{
-                  fontSize:
-                    "10px",
-                  color:
-                    "#777",
-                  marginBottom:
-                    "4px",
+                  fontSize: "10px",
+                  color: "#64748b",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.8px",
+                  marginBottom: "3px",
                 }}
               >
-                YEAR
+                ⏱️ Year Period
               </div>
 
               <div
                 style={{
-                  fontSize:
-                    "13px",
-                  fontWeight:
-                    "600",
+                  fontSize: "13px",
+                  fontWeight: "700",
                 }}
               >
-                {
-                  selectedPlanet.orbitalPeriod
-                }
+                {selectedPlanet.orbitalPeriod}
               </div>
-              
-
             </div>
+          </div>
 
+
+          {/* PLANET FACT */}
+
+          <div
+            style={{
+              marginBottom: "16px",
+              padding: "12px 14px",
+              background: "rgba(99, 102, 241, 0.08)",
+              borderRadius: "12px",
+              borderLeft: "3px solid #818cf8",
+              borderTop: "1px solid rgba(255, 255, 255, 0.06)",
+              borderRight: "1px solid rgba(255, 255, 255, 0.06)",
+              borderBottom: "1px solid rgba(255, 255, 255, 0.06)",
+              color: "#e2e8f0",
+              fontSize: "12.5px",
+              lineHeight: "1.6",
+            }}
+          >
+            <strong
+              style={{
+                color: "#a5b4fc",
+                display: "block",
+                marginBottom: "4px",
+                fontSize: "11px",
+                letterSpacing: "1px",
+                textTransform: "uppercase",
+              }}
+            >
+              ✨ NASA Insight
+            </strong>
+
+            <div>
+              {selectedPlanet.fact ||
+                "Explore this planet to discover more!"}
+            </div>
           </div>
 
 
@@ -1648,80 +1612,47 @@ function App() {
           <div
             style={{
               display: "flex",
-
               gap: "8px",
-
-              marginTop:
-                "18px",
             }}
           >
-
             <button
-              onClick={
-                handleFocusPlanet
-              }
-
+              onClick={handleFocusPlanet}
               style={{
                 flex: 1,
-
-                padding:
-                  "11px",
-
-                borderRadius:
-                  "10px",
-
+                padding: "10px",
+                borderRadius: "10px",
                 border: "none",
-
                 background:
-                  "white",
-
-                color:
-                  "black",
-
-                fontWeight:
-                  "bold",
-
-                cursor:
-                  "pointer",
+                  "linear-gradient(135deg, #6366f1, #8b5cf6)",
+                color: "white",
+                fontWeight: "700",
+                fontSize: "13px",
+                cursor: "pointer",
+                boxShadow:
+                  "0 4px 15px rgba(99, 102, 241, 0.35)",
               }}
             >
               🎯 Focus
             </button>
 
-
             <button
-              onClick={
-                handleCompare
-              }
-
+              onClick={handleCompare}
               style={{
                 flex: 1,
-
-                padding:
-                  "11px",
-
-                borderRadius:
-                  "10px",
-
+                padding: "10px",
+                borderRadius: "10px",
                 border:
-                  "1px solid rgba(255,255,255,0.15)",
-
+                  "1px solid rgba(255, 255, 255, 0.15)",
                 background:
-                  "rgba(255,255,255,0.08)",
-
-                color:
-                  "white",
-
-                fontWeight:
-                  "bold",
-
-                cursor:
-                  "pointer",
+                  "rgba(255, 255, 255, 0.08)",
+                color: "white",
+                fontWeight: "600",
+                fontSize: "13px",
+                cursor: "pointer",
               }}
             >
               ⭐ Compare
             </button>
-
           </div>
 
         </div>

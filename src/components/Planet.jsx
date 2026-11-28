@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
 import { useFrame, useLoader } from "@react-three/fiber";
 import { TextureLoader } from "three";
-import { Text } from "@react-three/drei";
+import { Text, Billboard } from "@react-three/drei";
 
 import Moon from "./Moon";
 import Ring from "./Ring";
@@ -127,9 +127,11 @@ function Planet({
 
           <meshStandardMaterial
             map={textureMap}
+            roughness={0.8}
+            metalness={0.0}
             color={
               hovered || selected
-                ? "#dddddd"
+                ? "#ffffff"
                 : "white"
             }
           />
@@ -143,19 +145,22 @@ function Planet({
 
 
         {showLabel && (
-          <Text
+          <Billboard
             position={[
               0,
-              scale + 0.5,
+              scale + 0.45,
               0
             ]}
-            fontSize={0.2}
-            color="white"
-            anchorX="center"
-            anchorY="middle"
           >
-            {name}
-          </Text>
+            <Text
+              fontSize={Math.max(0.28, scale * 0.4)}
+              color="white"
+              anchorX="center"
+              anchorY="middle"
+            >
+              {name}
+            </Text>
+          </Billboard>
         )}
 
       </group>

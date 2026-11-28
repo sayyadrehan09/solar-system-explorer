@@ -1,9 +1,12 @@
 import { useRef } from "react";
-import { useFrame } from "@react-three/fiber";
+import { useFrame, useLoader } from "@react-three/fiber";
+import { TextureLoader } from "three";
 
 function Moon() {
   const moonRef = useRef();
   const orbitRef = useRef();
+
+  const moonTexture = useLoader(TextureLoader, "/textures/moon.jpg");
 
   useFrame(() => {
     if (moonRef.current)
@@ -20,8 +23,8 @@ function Moon() {
         position={[1, 0, 0]}
         scale={0.2}
       >
-        <sphereGeometry />
-       <meshStandardMaterial color="lightgray" />
+        <sphereGeometry args={[1, 32, 32]} />
+        <meshStandardMaterial map={moonTexture} roughness={0.8} />
       </mesh>
     </group>
   );
